@@ -1,0 +1,435 @@
+## Segmento del UI
+BatallaNavalUI3 <- function(id) {
+  ns <- NS(id)
+  
+  
+  uiOutput(ns("ARMADO_BATALLON"))
+  
+}
+
+
+
+
+## Segmento del server
+BatallaNavalSERVER3 <- function(input, output, session, 
+                               base, zocalo_CIE, 
+                               verbatim) {
+  
+  ns <- session$ns
+  
+  
+  
+  if(is.null(base)) return(NULL)
+  
+  # return(
+  #   list(
+  #     frec_input = reactive({ input$frec_input }),
+  #     max_input = reactive({ input$max_input })
+  #   )
+  # )
+  
+  
+  
+  
+  ##################################
+  
+  OpcionesColumnas <- reactive({
+    if(is.null(base())) return(NULL)
+    if(is.null(input$orden)) return(NULL)  
+    
+    
+    nombres2_original <- colnames(base())
+    opciones_carga2 <- OpcionesDeColumnas(nombres2_original)
+    
+    # Orden Original de la base...
+    if(input$orden == 1) {
+      nuevo_orden <- c(1:length(nombres2_original))
+      opciones_carga2 <- opciones_carga2[nuevo_orden]
+    } else
+      # Orden Creciente...  
+      if(input$orden == 2) {
+        nuevo_orden <- order(nombres2_original, decreasing = F)
+        opciones_carga2 <- opciones_carga2[nuevo_orden]
+      } else
+        # Orden Decreciente...  
+        if(input$orden == 3) {
+          nuevo_orden <- order(nombres2_original, decreasing = T)
+          opciones_carga2 <- opciones_carga2[nuevo_orden]
+        } 
+    
+    opciones_carga2
+    
+    
+  })
+  
+  observe({
+    
+    freezeReactiveValue(input, "var1")
+    updateSelectInput(session, 
+                      inputId = "var1",
+                      label = "Tiempo (Variable 1): ",
+                      choices = c("Seleccione una... " = "", OpcionesColumnas())
+    )
+    
+    freezeReactiveValue(input, "var2")
+    updateSelectInput(session, 
+                      inputId = "var2",
+                      label = "Status (Variable 2): ",
+                      choices = c("Seleccione una... " = "", OpcionesColumnas())
+    )
+  })
+  
+  
+  
+  # Batalla Naval
+  user_selection <- reactive({
+    
+    if(is.null(input$var1)) return(NULL)
+    if(is.na(input$var1)) return(NULL)
+    if(input$var1 == "") return(NULL)
+    
+    if(is.null(input$var2)) return(NULL)
+    if(is.na(input$var2)) return(NULL)
+    if(input$var2 == "") return(NULL)
+    
+    
+    variables <- c()
+    tipo_variables <- c()
+    numero_tipo <- c()
+    caso_tipo_variables <- c() # Es un valor unico
+    verificacion_interna <- c()
+    verificacion_general <- c() # Es un valor unico
+    lenguaje_tipo <- c()
+    
+    
+  
+      # Variables
+      variables[1] <- c(input$var1)
+      variables[2] <- c(input$var2)
+      
+      # Numero de tipo de variable
+      numero_tipo[1] <- 10 # RELLENADO!
+      numero_tipo[2] <- 10 # RELLENADO!
+      numero_tipo <- as.numeric(numero_tipo)
+      
+      # Tipo de variable
+      tipo_variables[numero_tipo ==  1] <- "Character"
+      tipo_variables[numero_tipo == 10] <- "Numeric"
+      
+      # Lenguage en tipo de variable
+      lenguaje_tipo[numero_tipo ==  1] <- "Categórica"
+      lenguaje_tipo[numero_tipo == 10] <- "Numérica"
+      
+      # Verificacion interna
+      dt_numerica1_interna <- is.numeric(base()[,input$var1])
+      dt_numerica1_externa <- tipo_variables[1] == "Numeric"
+      dt_numerica2_interna <- is.numeric(base()[,input$var2])
+      dt_numerica2_externa <- tipo_variables[2] == "Numeric"
+      
+      verificacion_interna[1] <- TRUE
+      verificacion_interna[2] <- TRUE
+      if(!dt_numerica1_interna) if(dt_numerica1_externa) verificacion_interna[1] <- FALSE
+      if(!dt_numerica2_interna) if(dt_numerica2_externa) verificacion_interna[2] <- FALSE
+      
+       
+    
+    # Para todas las salidas posibles...
+    # Determinamos pos_RMedic
+    {
+      
+      
+      
+      suma_caso <- sum(as.numeric(numero_tipo))
+      casos_posibles <- c(1, 10, 2, 20, 11)
+      
+      # Determinamos los 5 casos para RMedic
+      # 1) 1Q =  1 puntos
+      # 2) 1C = 10 puntos
+      # 3) 2Q =  2 puntos
+      # 4) 2C = 20 puntos
+      # 5) QC o CQ = 11 puntos
+      orden_casos <- c(1:length(casos_posibles))
+      dt_caso <- suma_caso == casos_posibles
+      caso_tipo_variables[1] <- orden_casos[dt_caso]
+      
+      # Verificacion General
+      if(sum(verificacion_interna) == length(verificacion_interna)){
+        verificacion_general <- TRUE
+      }  else  verificacion_general <- FALSE
+      
+      ###
+    }
+    ###########################################################
+    
+    # Return Exitoso
+    my_exit <- list(variables = variables, 
+                    numero_tipo = numero_tipo,
+                    tipo_variables = tipo_variables,
+                    caso_tipo_variables = caso_tipo_variables,
+                    verificacion_interna = verificacion_interna,
+                    verificacion_general = verificacion_general,
+                    lenguaje_tipo = lenguaje_tipo)
+    
+    return(my_exit)
+    
+    
+  })
+  
+  
+  # Batalla Naval
+  batalla_naval <- reactive({
+    
+
+    if(is.null(user_selection())) return(NULL)
+
+    
+    # Solo sigue si hay 2 variables en juego!
+    
+    variables <- user_selection()$variables 
+    numero_tipo <- user_selection()$numero_tipo
+    tipo_variables <- user_selection()$tipo_variables
+    caso_tipo_variables <- user_selection()$caso_tipo_variables
+    verificacion_interna <- user_selection()$verificacion_interna
+    verificacion_general <- user_selection()$verificacion_general
+    lenguaje_tipo <- user_selection()$lenguaje_tipo
+    
+    
+    
+    # Return Exitoso
+    my_exit <- list(variables = variables, 
+                    numero_tipo = numero_tipo,
+                    tipo_variables = tipo_variables,
+                    caso_tipo_variables = caso_tipo_variables,
+                    verificacion_interna = verificacion_interna,
+                    verificacion_general = verificacion_general,
+                    lenguaje_tipo = lenguaje_tipo)
+    
+    return(my_exit)
+    
+    
+  })
+  
+  
+  
+  
+  
+  # Zocalo
+  zocalo <- reactive({
+    
+    if(is.null(user_selection())) return(NULL)
+    
+    # Armado vacio
+    # La 1ra opcion para html
+    # La 2da opcion es para el download
+    armado <- list(c(), c())
+    names(armado)[1] <- "Batalla Naval"
+    names(armado)[2] <- "Batalla Naval"
+    
+    
+    
+  
+      
+      if(sum(colnames(base()) == input$var1) == 0) return(NULL)
+      
+      armado[[1]] <- paste0("<b>Tiempo (Variable 1): </b>", user_selection()[[1]][1], 
+                            " - Columna ", MyLetter(Base = base(), the_col = user_selection()[[1]][1]),
+                            " - ",  user_selection()$lenguaje_tipo[1])
+      
+      
+   
+    
+
+      
+      if(sum(colnames(base()) == input$var2) == 0) return(NULL)
+      
+      armado[[1]] <- paste0(armado[[1]], "<br/>",
+                            "<b>Status (Variable 2): </b>", user_selection()[[1]][2], 
+                            " - Columna ", MyLetter(Base = base(), the_col = user_selection()[[1]][2]),
+                            " - ",  user_selection()$lenguaje_tipo[2])
+      
+      
+ 
+    
+    
+    
+    if(!is.null(zocalo_CIE()[[1]])){
+      
+      armado[[1]] <- paste0(armado[[1]], "<br/>",  zocalo_CIE()[[1]])
+      armado[[2]] <-  c(armado[[2]], zocalo_CIE()[[2]])
+    }
+    
+    
+    armado[[1]] <- HTML(armado[[1]])
+    
+    names(armado)[1] <- "Batalla Naval"
+    names(armado)[2] <- "Batalla Naval"
+    return(armado)
+    
+  })
+  
+  decimales <- reactive({
+    if(is.null(input$decimales)) return(NULL)
+    
+    return(input$decimales)
+  })
+  
+  
+  alfa <- reactive({
+    if(is.null(input$alfa)) return(NULL)
+    return(input$alfa)
+    
+    
+  })
+  
+  
+  output$message01 <- renderText({
+    
+    if(is.null(batalla_naval())) return(NULL)
+    
+    if(!batalla_naval()[[5]][1]) {
+      armado <- paste0("<b><u>Advertencia:</u> ", 
+                       "La variable 1 (Tiempo)'", input$var1, "' no puede
+                        ser considerada numérica ya que posee letras y/o símbolos.
+                        Esto imposibilita la generación de cualquier tipo de tablas, gráficos y test
+                        estadísticos. Realice un CONTROL sobre esta variable.</b>", 
+                       "<br/><br/><br/><br/>")
+      
+      armado
+    } else return(NULL)
+  })
+  
+  output$message02 <- renderText({ 
+    if(is.null(batalla_naval())) return(NULL)
+    if(is.null(batalla_naval()[[5]])) return(NULL)
+    if(is.null(batalla_naval()[[5]][2])) return(NULL)
+    if(is.na(batalla_naval()[[5]][2])) return(NULL)
+    
+    if(!batalla_naval()[[5]][2]) {
+      armado <- paste0("<b><u>Advertencia:</u> ", 
+                       "La variable 2 (Status)'", input$var2, "' no puede
+                        ser considerada numérica ya que posee letras y/o símbolos.
+                        Esto imposibilita la generación de cualquier tipo de tablas, gráficos y test
+                        estadísticos.
+                        Realice un CONTROL sobre esta variable.</b>", 
+                       "<br/><br/><br/><br/>")
+      
+      armado
+    } else return(NULL)
+  })
+  
+  output$message03 <- renderText({
+    if(is.null(batalla_naval())) return(NULL)
+    if(length(batalla_naval()[[1]]) != 2) return(NULL)
+    if(is.null(batalla_naval()[[1]][1])) return(NULL)
+    if(is.na(batalla_naval()[[1]][1])) return(NULL)
+    
+    
+    if (batalla_naval()[[1]][1] == batalla_naval()[[1]][2]){
+      
+      armado <- paste0("<b><u>Advertencia:</u> Has seleccionado dos
+                         veces la variable '", input$var1, "'.</b>", 
+                       "<br/><br/><br/><br/>")
+      
+      armado
+      
+    } else return(NULL)
+    
+  })
+  
+  
+  output$Zocalo <- renderText({
+    
+    # Usamos solo la salida HTML
+    paste0(
+      div(
+        h3(names(zocalo())[1]),
+        zocalo()[[1]]
+      )
+    )
+    
+  }) 
+  
+  output$MiTexto_BatallaNaval <- renderText({
+    
+    
+    
+    if(is.null(verbatim)) return(NULL)
+    if(!verbatim) return(NULL)
+    
+    unlist(batalla_naval()) 
+  }) 
+  
+  
+  output$ARMADO_BATALLON <- renderUI({
+    
+    if(is.null(base())) return(NULL)
+    div(
+      fluidRow(
+        column(3, 
+               selectInput(inputId = ns("orden"), 
+                           label = "Orden: ",
+                           choices = c("Orden Original" = 1, 
+                                       "Albético Creciente" = 2,
+                                       "Albatético Decreciente" = 3)
+               )
+        ),
+       
+        column(3,
+               numericInput(inputId = ns("decimales"),
+                            label = "Decimales",
+                            value = 2,
+                            min = 0,
+                            max = 10,
+                            step = 1)
+        ),
+        column(3,
+               numericInput(inputId = ns("alfa"),
+                            label = "Alfa",
+                            value = 0.05,
+                            min = 0,
+                            max = 1,
+                            step = 0.01)
+        )
+      ),
+      column(4,
+           selectInput(inputId = ns("var1"),
+                       label = "Variable 1: ",
+                       choices = "")
+                       ),
+      column(4,
+           selectInput(inputId = ns("var2"),
+                       label = "Variable 2: ",
+                       choices = "")
+                                          ),
+                   
+    fluidRow(span(htmlOutput(ns("message01")), style="color:red")),
+    fluidRow(span(htmlOutput(ns("message02")), style="color:red")),
+    fluidRow(span(htmlOutput(ns("message03")), style="color:red")),
+    
+    htmlOutput(ns("Zocalo")), br(), br(),
+    verbatimTextOutput(ns("MiTexto_BatallaNaval")),
+      )
+
+    
+  })
+  
+  
+  # Final Return of the Modul!
+  return(
+    list(
+      batalla_naval = batalla_naval,
+      decimales = decimales,
+      alfa = alfa,
+      OpcionesColumnas =   OpcionesColumnas
+    )
+  )
+  
+  # return(
+  #   list(
+  #     batalla_naval =  batalla_naval
+  # 
+  #   )
+  # )
+}
+
+

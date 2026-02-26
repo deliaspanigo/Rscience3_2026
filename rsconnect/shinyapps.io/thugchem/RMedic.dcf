@@ -1,0 +1,13 @@
+name: RMedic
+title: RMedic
+username:
+account: thugchem
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5761413
+bundleId: 6433076
+url: https://thugchem.shinyapps.io/RMedic/
+when: 1666572764.62324
+lastSyncTime: 1666572764.62325
+asMultiple: FALSE
+asStatic: FALSE

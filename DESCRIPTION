@@ -1,0 +1,44 @@
+Package: RMedic3_2026
+Type: Package
+Title: Herramientas para Rscience
+Version: 3.0.0
+Authors@R: c(
+    person(
+      "David", "Elias Panigo",
+      email = "d.eliaspanigo@gmail.com",
+      role = c("aut", "cre")
+    )
+  )
+Description: Desarrollo de herramientas para análisis científico.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports:
+    shiny,
+    shinyjs,
+    shinyWidgets,
+    colourpicker,
+    shinycssloaders,
+    shinyBS,
+    DT,
+    openxlsx,
+    stringr,
+    vioplot,
+    coin,
+    car,
+    agricolae,
+    gplots,
+    fmsb,
+    readxl,
+    usethis,
+    httr,
+    future,
+    bsicons,
+    Hmisc
+Depends:
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+
