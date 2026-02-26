@@ -1,3 +1,9 @@
+
+  module_opt99_who_UI <- function(id) {
+    ns <- NS(id)
+    uiOutput(ns("aver"))
+  }
+
 module_opt99_who_SERVER <- function(id) {
   moduleServer(id, function(input, output, session) {
     
@@ -123,3 +129,6 @@ module_opt99_who_SERVER <- function(id) {
     })
   })
 }
+
+
+

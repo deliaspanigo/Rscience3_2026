@@ -89,3 +89,13 @@ module_opt05_contacto_UI <- function(id) {
     )
   )
 }
+
+
+module_opt05_contacto_SERVER <- function(id) {
+  moduleServer(id, function(input, output, session) {
+    
+    ns <- session$ns
+    
+    
+  })
+}

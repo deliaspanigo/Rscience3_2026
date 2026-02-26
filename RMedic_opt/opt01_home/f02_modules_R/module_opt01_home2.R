@@ -144,3 +144,12 @@ module_opt01_home2_UI <- function(id) {
     ", ns("eniax_rotativo"))))
   )
 }
+
+module_opt01_home2_SERVER <- function(id) {
+  moduleServer(id, function(input, output, session) {
+    
+    
+    module_elegant_cards_SERVER(id = "card_card")
+    
+  })
+}
