@@ -280,11 +280,75 @@ ui <- shiny::navbarPage(inverse=TRUE,
                         shiny::tabPanel(title = "Cita", module_opt04_cita_UI("opt04_cita")),
                         shiny::tabPanel(title = "Contacto", module_opt05_contacto_UI("opt05_contacto")),
                         shiny::tabPanel(title = "Quiénes somos?", module_opt99_who_UI(id = "who99")),
-                        shiny::tabPanel(title = "Cronología", 
-                                        h3_mod("Última versión"),
-                                        "01-10-2025 - RMedic 3.2.4", br(),
-                                        h3_mod("Versiones Anteriores"),
-                                        "31-09-2025 - RMedic 3.2.3")
+                        shiny::tabPanel(
+                          title = "Cronología",
+                          tags$head(
+                            tags$style(HTML("
+      .timeline-container { padding: 20px; position: relative; }
+      .timeline-item {
+        padding-left: 30px;
+        border-left: 3px solid #0d47a1;
+        position: relative;
+        margin-bottom: 30px;
+      }
+      .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -11px;
+        top: 0;
+        width: 19px;
+        height: 19px;
+        background: white;
+        border: 4px solid #0d47a1;
+        border-radius: 50%;
+      }
+      .version-tag {
+        background: #0d47a1;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-weight: bold;
+        font-size: 0.9em;
+      }
+      .version-date {
+        color: #78909c;
+        font-family: 'Courier New', monospace;
+        font-weight: 600;
+        margin-left: 10px;
+      }
+      .version-current { border-left-color: #2e7d32 !important; }
+      .version-current::before { border-color: #2e7d32 !important; }
+      .badge-current { background: #2e7d32 !important; }
+    "))
+                          ),
+                          
+                          div(class = "timeline-container",
+                              h2("Historial de Versiones", style="color:#37474f; font-weight:800; margin-bottom:30px;"),
+                              
+                              # Versión Actual
+                              div(class = "timeline-item version-current",
+                                  span(class = "version-tag badge-current", "v3.2.4"),
+                                  span(class = "version-date", "2026-02-26"),
+                                  h4("Lanzamiento Actual", style="margin-top:10px; font-weight:700;"),
+                                  tags$ul(
+                                    tags$li("Optimización de módulos UI/SERVER."),
+                                    tags$li("Mejora en el sistema de citación bibliográfica."),
+                                    tags$li("Compatibilidad mejorada con entornos Windows.")
+                                  )
+                              ),
+                              
+                              # Versión Anterior
+                              div(class = "timeline-item",
+                                  span(class = "version-tag", "v3.2.3"),
+                                  span(class = "version-date", "2025-09-31"),
+                                  h4("Actualización de mantenimiento", style="margin-top:10px; font-weight:700;"),
+                                  tags$ul(
+                                    tags$li("Corrección de errores en exportación de tablas."),
+                                    tags$li("Actualización de dependencias de R base.")
+                                  )
+                              )
+                          )
+                        )
                         #shiny::tabPanel(title = "Donar", module_opt06_donar_UI(id = "donar"))
 )
 

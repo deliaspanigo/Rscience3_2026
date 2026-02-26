@@ -16,11 +16,18 @@ module_opt02_soft_UI <- function(id) {
     # ),
     # br(), br(),
     fluidRow(
+      # Columna para el botón de menú
       column(2, class = "text-center",
              shinyBS::bsButton(ns("showpanel"), "", 
                                type = "toggle", value = TRUE,
-                               icon("bars"), style = "primary", size = "large"
-             )
+                               icon("bars"), style = "primary", size = "large")
+      ),
+      
+      # Columna para los logos (RMedic y ENIAX)
+      column(10, class = "text-right", 
+             style = "display: flex; align-items: center; justify-content: flex-end; gap: 20px;",
+             img(src = "rmediclogo.png", height = "50px"),
+             img(src = "empresas/img_01_ENIAX.png", height = "40px")
       )
     ),
     br(), br(),

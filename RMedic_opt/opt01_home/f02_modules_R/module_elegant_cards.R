@@ -5,137 +5,141 @@ module_elegant_cards_UI <- function(id) {
   tagList(
     tags$head(
       tags$style(HTML("
+        /* Título Principal */
+        .home-title {
+          text-align: center; 
+          margin: 40px 0; 
+          font-weight: 800; 
+          color: #2c3e50;
+          position: relative;
+          padding-bottom: 15px;
+        }
+        .home-title::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 80px;
+          height: 4px;
+          background: #4287f5;
+          border-radius: 2px;
+        }
+
+        /* Estilo Base de las Tarjetas */
         .card-custom {
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
-          margin-bottom: 20px;
+          border-radius: 20px !important;
+          transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+          border: none !important;
+          overflow: hidden;
         }
         .card-custom:hover {
-          transform: translateY(-8px);
-          box-shadow: 0 12px 24px rgba(0,0,0,0.25) !important;
+          transform: translateY(-10px);
+          box-shadow: 0 15px 35px rgba(0,0,0,0.15) !important;
         }
+
+        /* Headers Estilizados */
         .card-header-custom {
+          padding: 25px !important;
+          border: none !important;
+          color: white !important;
           display: flex;
+          flex-direction: column;
           align-items: center;
-          justify-content: center;
-          font-size: 1.3rem;
+          text-align: center;
+        }
+        .card-header-custom h4 {
+          margin-top: 10px;
+          font-weight: 700;
           letter-spacing: 0.5px;
-          text-transform: uppercase;
+          font-size: 1.2rem;
         }
-        .card-icon {
-          margin-right: 10px;
-          font-size: 1.5rem;
+        .card-icon-large {
+          font-size: 2.5rem;
+          margin-bottom: 5px;
+          filter: drop-shadow(1px 2px 4px rgba(0,0,0,0.2));
         }
+
+        /* Contenido */
         .content-paragraph {
-          border-left: 3px solid rgba(0,0,0,0.1);
-          padding-left: 15px;
-          margin: 15px 0;
+          padding: 20px !important;
+          font-size: 16px;
+          color: #455a64;
+          line-height: 1.6;
         }
+        .bullet-item {
+          display: flex;
+          margin-bottom: 12px;
+        }
+        .bullet-icon {
+          color: #4287f5;
+          margin-right: 10px;
+          margin-top: 5px;
+          font-size: 0.8em;
+        }
+
+        /* Variantes de Color */
+        .card-sce { border-top: 5px solid #4287f5 !important; background: #f8fbff !important; }
+        .card-sce .header-bg { background: linear-gradient(135deg, #4287f5, #2159b0); }
+        
+        .card-clinical { border-top: 5px solid #56ab2f !important; background: #f9fff7 !important; }
+        .card-clinical .header-bg { background: linear-gradient(135deg, #56ab2f, #a8e063); }
+        
+        .card-friendly { border-top: 5px solid #ffb347 !important; background: #fffcf5 !important; }
+        .card-friendly .header-bg { background: linear-gradient(135deg, #ffb347, #ffcc33); }
       "))
     ),
-    h1(
-      "Análisis estadístico para Ciencias de la Salud",
-      style = "text-align: center; margin: 30px 0; padding-bottom: 15px; border-bottom: 2px solid #ddd;"
-    ),
+    
+    h1(class = "home-title", "Análisis estadístico para Ciencias de la Salud"),
+    
     layout_columns(
       col_width = 4,
       
-      # Tarjeta 1
+      # Tarjeta 1: SCE
       card(
-        class = "card-custom",
-        full_screen = FALSE,
-        height = "100%",
+        class = "card-custom card-sce",
         card_header(
-          div(
-            class = "card-header-custom",
-            fa_i(name = "gem", fill = "currentColor", class = "card-icon"),
-            h4("Statistical Computing Enviroment (SCE)"),
-          ),
-          style = "background: linear-gradient(135deg, #4287f5, #6e8efb);
-                  color: white;
-                  border: none;
-                  border-radius: 20px 20px 0 0;
-                  font-weight: 500;
-                  padding: 20px;
-                  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);"
+          class = "card-header-custom header-bg",
+          fa_i(name = "gem", class = "card-icon-large"),
+          h4("Statistical Computing Environment (SCE)")
         ),
-        style = "background: linear-gradient(to bottom, #f0f7ff, white);
-                border: 2px solid #4287f5; /* Más ancho y color */
-                border-radius: 20px;
-                box-shadow: 0 8px 16px rgba(66, 135, 245, 0.3);",
-        p(class = "content-paragraph", 
-          style = "font-size: 18px;", 
-          "- Entorno computacional estadístico, basado en R.", br(),
-          "- Versión estable y standard de librerías y funciones estadísticas.")
+        div(class = "content-paragraph",
+            div(class = "bullet-item", icon("check-circle", class = "bullet-icon"), "Entorno computacional estadístico, basado en R."),
+            div(class = "bullet-item", icon("check-circle", class = "bullet-icon"), "Versión estable y estándar de librerías y funciones.")
+        )
       ),
       
-      # Tarjeta 2
+      # Tarjeta 2: Clinical Reporting
       card(
-        class = "card-custom",
-        full_screen = FALSE,
-        height = "100%",
+        class = "card-custom card-clinical",
         card_header(
-          div(
-            class = "card-header-custom",
-            fa_i(name = "file-medical", fill = "currentColor", class = "card-icon"),
-            h4("Clinical Reporting")
-          ),
-          style = "background: linear-gradient(135deg, #56ab2f, #42f565);
-                  color: white;
-                  border: none;
-                  border-radius: 20px 20px 0 0;
-                  font-weight: 500;
-                  padding: 20px;
-                  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);"
+          class = "card-header-custom header-bg",
+          fa_i(name = "file-medical", class = "card-icon-large"),
+          h4("Clinical Reporting")
         ),
-        style = "background: linear-gradient(to bottom, #f0fff0, white);
-                border: 2px solid #42f565; /* Más ancho y color */
-                border-radius: 20px;
-                box-shadow: 0 8px 16px rgba(66, 245, 101, 0.3);",
-        p(class = "content-paragraph",
-          style = "font-size: 18px;", 
-          "- Análisis estadístico desarrollado específicamente para ciencias de la salud.", br(),
-          "- Estandarización en el proceso de análisis y toma de decisiones.", br())
+        div(class = "content-paragraph",
+            div(class = "bullet-item", icon("check-circle", class = "bullet-icon", style="color:#56ab2f"), "Análisis desarrollado para ciencias de la salud."),
+            div(class = "bullet-item", icon("check-circle", class = "bullet-icon", style="color:#56ab2f"), "Estandarización en la toma de decisiones clínicas.")
+        )
       ),
       
-      # Tarjeta 3
+      # Tarjeta 3: User Friendly
       card(
-        class = "card-custom",
-        full_screen = FALSE,
-        height = "100%",
+        class = "card-custom card-friendly",
         card_header(
-          div(
-            class = "card-header-custom",
-            fa_i(name = "user-md", fill = "currentColor", class = "card-icon"),
-            h4("User friedly")
-          ),
-          style = "background: linear-gradient(135deg, #ffb347, #f5d742);
-                  color: white;
-                  border: none;
-                  border-radius: 20px 20px 0 0;
-                  font-weight: 500;
-                  padding: 20px;
-                  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);"
+          class = "card-header-custom header-bg",
+          fa_i(name = "user-md", class = "card-icon-large"),
+          h4("User Friendly")
         ),
-        style = "background: linear-gradient(to bottom, #fffcf0, white);
-                border: 2px solid #f5d742; /* Más ancho y color */
-                border-radius: 20px;
-                box-shadow: 0 8px 16px rgba(245, 215, 66, 0.3);",
-        p(class = "content-paragraph", 
-          style = "font-size: 18px;", 
-          "- Innovador entorno de interacción con el usuario.", br(),
-          "- Interpretación automatizada de los valores estadísticos obtenidos.")
+        div(class = "content-paragraph",
+            div(class = "bullet-item", icon("check-circle", class = "bullet-icon", style="color:#ffb347"), "Innovador entorno de interacción con el usuario."),
+            div(class = "bullet-item", icon("check-circle", class = "bullet-icon", style="color:#ffb347"), "Interpretación automatizada de valores estadísticos.")
+        )
       )
     )
   )
 }
 
-
-# Server del módulo
 module_elegant_cards_SERVER <- function(id) {
-  moduleServer(
-    id,
-    function(input, output, session) {
-      # No se requiere lógica del servidor para esta aplicación
-    }
-  )
+  moduleServer(id, function(input, output, session) {})
 }

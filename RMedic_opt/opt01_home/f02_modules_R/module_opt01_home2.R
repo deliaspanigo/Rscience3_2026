@@ -1,110 +1,146 @@
 module_opt01_home2_UI <- function(id) {
   ns <- NS(id)
-  # tabPanel(
-    # title = "Inicio", icon = icon("home"),
-    div(
-      tagList(
-        tags$head(
-          tags$script(type="text/javascript", src = "busy.js"),
-          tags$link(rel="shortcut icon", href="./rmediclogo.jpg"),
-          tags$script(type="text/javascript", "var switchTo5x=true"),
-          tags$script(type="text/javascript",'stLight.options({publisher: "675b3562-a081-470a-9fc4-3dd6a712209d", doNotHash: true, doNotCopy: true, hashAddressBar: false})')
-        )
-      ),
-      div(id = ns("home"),
-          br(),
-          div(
-            style = "text-align: center;",
-          fluidRow(
-            column(3, img(src = "rmediclogo.png", width = "300", height = "300"),
-                       br(),
-                       tags$a(
-                         fa_i("linkedin"), 
-                         href = "https://www.linkedin.com/company/r-medic/", 
-                         target = "_blank",
-                         class = "social-icon", 
-                         style="font-size: 4em;"),
-          ),
-                   column(9, br(), br(),
-                          div(tags$head(
-                            tags$style(HTML("
-                            body, html {
-    overflow-x: hidden !important;  /* Evita scroll horizontal en toda la página */
-  }
-      .carousel-container {
-        width: 100%;
-        overflow: hidden;
-        white-space: nowrap;
-      }
-      .carousel {
-        display: inline-block;
-        white-space: nowrap;
-        animation: moveSlideshow 15s linear infinite; /* antes 60s */      }
-      .carousel img {
-        display: inline-block;
-        height: 250px;
-        margin-right: 20px;
-      }
-      
-      .carousel-container:hover .carousel {
-        animation-play-state: paused;
-      }
+  
+  div(
+    tagList(
+      tags$head(
+        tags$script(type="text/javascript", src = "busy.js"),
+        tags$link(rel="shortcut icon", href="./rmediclogo.jpg"),
+        tags$style(HTML("
+          /* Evitar scroll horizontal innecesario */
+          body, html { overflow-x: hidden !important; }
+          
+          /* Contenedor principal de la Home */
+          .home-wrapper { padding: 20px; text-align: center; }
 
-      @keyframes moveSlideshow {
-        0% { transform: translateX(0); }
-        100% { transform: translateX(-50%); }
-      }
-    "))
-                          ),
-                          class = "carousel-container",
-                              div(class = "carousel",
-                                  # Primer conjunto de imágenes
-                                  tags$img(src = "img01_ucc.png", height = "10%"),  # Imagen
-                                  tags$img(src = "img02_ucc_salud.png", height = "10%"),  # Imagen
-                                  tags$img(src = "img03_reina_2025.png", height = "10%"),  # Imagen,
-                                  
-                                  
-                                  # Segundo conjunto de imágenes (duplicado)
-                                  # tags$img(src = "logo_01_unc_master.png", height = "10%"),  # Imagen
-                                  # tags$img(src = "logo_02_fcefyn_master.png", height = "10%"),  # Imagen
-                                  # tags$img(src = "logo_03_efadoc_master.png", height = "10%"),  # Imagen
-                                  # tags$img(src = "logo_04_rscience_master.png", height = "10%"),  # Imagen,
-                                  # tags$img(src = "logo_05_UNT_master.png", height = "10%"),  # Imagen
-                                  # tags$img(src = "logo_06_CONICET_master.png", height = "10%"),  # Imagen
-                                  # tags$img(src = "logo_07_GULICH_master.png", height = "10%"),
-                                  # tags$img(src = "logo_08_NASA_master.png", height = "10%"),
-                                  # tags$img(src = "logo_09_UTN_master.png", height = "10%"),
-                                  # tags$img(src = "logo_10_INTA_master.png", height = "10%"),
-                                  # tags$img(src = "logo_11_CONAE_master.png", height = "10%"),
-                                  # tags$img(src = "logo_12_YPF_master.png", height = "10%"),
-                                  # tags$img(src = "logo_13_GOOGLE_master.png", height = "10%"),
-                                  # tags$img(src = "logo_14_OMS_master.png", height = "10%")
-                                  
-                              )
-                          ))
-          )
-          ),
-          # fluidRow(),
-          # fluidRow(),
-          module_elegant_cards_UI(id = ns("card_card")),
-          fluidRow(
-            
-          )
-      
-     
+          /* Logo Principal RMedic */
+          .main-logo { 
+            max-width: 100%; 
+            height: auto; 
+            transition: transform 0.3s ease;
+          }
+          .main-logo:hover { transform: scale(1.02); }
+
+          /* Logo Rotativo ENIAX */
+          .logo-eniax-fijo {
+            height: 90px; 
+            width: auto;
+            margin-bottom: 20px;
+            transition: opacity 0.6s ease-in-out;
+            display: inline-block;
+          }
+          
+          /* Carrusel de Instituciones */
+          .carousel-container {
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            margin-top: 30px;
+            padding: 15px 0;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+          }
+          
+          .carousel {
+            display: inline-block;
+            white-space: nowrap;
+            animation: moveSlideshow 60s linear infinite;
+          }
+          
+          .carousel img {
+            display: inline-block;
+            height: 80px; /* Tamaño más equilibrado para logos institucionales */
+            margin: 0 40px;
+            vertical-align: middle;
+            filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.1));
+            transition: transform 0.3s ease;
+          }
+          
+          .carousel img:hover { transform: scale(1.15); }
+
+          @keyframes moveSlideshow {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+          }
+
+          /* LinkedIn Icon */
+          .social-link {
+            font-size: 3.5em; 
+            color: #0a66c2; 
+            text-decoration: none;
+            transition: color 0.3s ease;
+          }
+          .social-link:hover { color: #004182; }
+        "))
       )
-    )
-  # )
+    ),
+    
+    div(id = ns("home"), class = "home-wrapper",
+        br(),
+        fluidRow(
+          # Columna Izquierda: Identidad RMedic
+          column(3, 
+                 img(src = "rmediclogo.png", width = "300", class = "main-logo"),
+                 br(), br(),
+                 tags$a(icon("linkedin"), 
+                        href = "https://www.linkedin.com/company/r-medic/", 
+                        target = "_blank", 
+                        class = "social-link")
+          ),
+          
+          # Columna Derecha: Alianzas y Partners
+          column(9, 
+                 br(),
+                 # Area de Logos Rotativos (ENIAX)
+                 div(style = "min-height: 110px;", # Evita saltos de layout al cambiar img
+                     img(id = ns("eniax_rotativo"), 
+                         src = "empresas/img_01_ENIAX.png", 
+                         class = "logo-eniax-fijo")
+                 ),
+                 
+                 # Carrusel Infinito
+                 div(class = "carousel-container",
+                     div(class = "carousel",
+                         # Set 1
+                         tags$img(src = "academia/img01_ucc.png"),
+                         tags$img(src = "academia/img02_ucc_salud.png"),
+                         tags$img(src = "academia/img03_reina_2025.png"),
+                         tags$img(src = "academia/img_02_ENIAX.png"),
+                         # Set 2 (Duplicado exacto para efecto infinito)
+                         tags$img(src = "academia/img01_ucc.png"),
+                         tags$img(src = "academia/img02_ucc_salud.png"),
+                         tags$img(src = "academia/img03_reina_2025.png"),
+                         tags$img(src = "academia/img_02_ENIAX.png")
+                     )
+                 )
+          )
+        ),
+        
+        # Módulo de Tarjetas (v.0.0.1)
+        module_elegant_cards_UI(id = ns("card_card"))
+    ),
+    
+    # Script de Rotación mejorado
+    tags$script(HTML(sprintf("
+      $(document).ready(function() {
+        var images = [
+          'empresas/img_01_ENIAX.png',
+          'empresas/img_02_ENIAX.png',
+          'empresas/img_03_ENIAX.png'
+        ];
+        var currentIndex = 0;
+        var $el = $('#%s');
+
+        setInterval(function() {
+          currentIndex = (currentIndex + 1) %% images.length;
+          $el.css('opacity', 0);
+          
+          setTimeout(function() {
+            $el.attr('src', images[currentIndex]);
+            $el.css('opacity', 1);
+          }, 600);
+        }, 5000);
+      });
+    ", ns("eniax_rotativo"))))
+  )
 }
-
-
-
-module_opt01_home2_SERVER <- function(id) {
-  moduleServer(id, function(input, output, session) {
-    
-    
-    module_elegant_cards_SERVER(id = "card_card")
-    
-  })
-}
-
