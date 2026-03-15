@@ -13,173 +13,94 @@ module_act001_s03_RMedic_01_settings_server <- function(id, sui_data_source){
     id,
     function(input, output, session) {
       
-      # ns para el server!
       ns <- session$ns
       
-      # ReactiveVal para almacenar datos confirmados
+      # --- 1. ESTADOS REACTIVOS ---
       confirmed_data <- reactiveVal(NULL)
-      
-      # ReactiveVal para rastrear el estado del botón
-      button_state <- reactiveVal("initial")  # initial, confirmed, modified
+      button_state <- reactiveVal("initial") # initial, confirmed, modified
       
       check_ok <- reactive({
         req(sui_data_source())
         sui_data_source() == "source_RMedic"
       })
       
-      ################################################
-      
+      # --- 2. LÓGICA DE NOMBRES DE BASES (RMedic Examples) ---
       all_names_database <- reactive({
         req(check_ok())
-        
-        # list.files(input_folder_master)
-        #datasets_info <- data(package = "RMedic")
-        #dataset_names <- datasets_info$results[, "Item"]
+        # Filtramos las bases que empiezan con "RM" en la lista maestra
         dataset_names <- names(data_list_RMedic)
-        my_str <- paste0("^", "RM")
-        dataset_names <- dataset_names[grepl(pattern = my_str, x = dataset_names)]
+        dataset_names <- dataset_names[grepl(pattern = "^RM", x = dataset_names)]
         dataset_names
-        
       })
       
       select_opt_database <- reactive({
-        req(check_ok())
         req(all_names_database())
-        
-        # # # Nombre de las bases de datos
         vector_obj <- all_names_database()
         
-        # # # Numero de orden, desed 01 hasta la ultima
+        # Formateo de números (01, 02, etc.)
         vector_numbers <- 1:length(vector_obj)
-        amount_digits <- max(nchar(vector_numbers))
-        if(amount_digits < 2) amount_digits <- 2
+        amount_digits <- max(nchar(vector_numbers), 2)
+        vector_formatted_numbers <- stringr::str_pad(vector_numbers, width = amount_digits, pad = "0")
         
-        vector_formatted_numbers <- stringr::str_pad(string = vector_numbers,
-                                                     width = amount_digits,
-                                                     pad = "0")
-        
-        # Vector con la visualizacion que tiene el usuario
         vector_visual <- paste0(vector_formatted_numbers, " - ", vector_obj)
-        
-        # Asignamos la visual a al vector
         names(vector_obj) <- vector_visual
-        
-        
-        # Salida!
         vector_obj
-        
       })
       
+      # --- 3. RENDERIZADO DE UI ---
       output$iu_base_selector <- renderUI({
         req(check_ok())
-        
         vector_visual <- c("Seleccione una..." = "", select_opt_database())
-        
         
         shiny::selectInput(
           inputId = ns("selected_input_file"),
-          label = "RMedic Examples",
+          label = "Ejemplos de RMedic",
           choices = vector_visual
         )
       })
       
-      # UI para el botón de acción - MODIFICADO para mostrarse siempre
       output$ui_action_button <- renderUI({
-        req(check_ok())  # Solo requiere que check_ok sea TRUE
+        req(check_ok())
         
-        # Determinar la clase del botón según su estado
         btn_class <- switch(button_state(),
-                            "initial" = "btn-primary",    # Azul inicial
-                            "confirmed" = "btn-success",  # Verde después de confirmar
-                            "modified" = "btn-primary")   # Vuelve a azul si se modifica
+                            "initial"   = "btn-primary",
+                            "confirmed" = "btn-success",
+                            "modified"  = "btn-primary")
         
-        # Determinar si el botón debe estar deshabilitado
-        is_disabled <- is.null(input$selected_input_file) || input$selected_input_file == ""
+        # BLOQUEO: Deshabilitar si no hay selección O si ya está confirmado (verde)
+        is_disabled <- is.null(input$selected_input_file) || 
+          input$selected_input_file == "" || 
+          button_state() == "confirmed"
         
         div(
           style = "margin-top: 15px;",
           actionButton(
             inputId = ns("confirm_selection"),
-            label = "Confirmar selección",
-            icon = icon("check"),
+            label = if(button_state() == "confirmed") "Selección Confirmada" else "Confirmar selección",
+            icon = icon(if(button_state() == "confirmed") "check-double" else "check"),
             class = btn_class,
             width = "100%",
-            disabled = is_disabled  # Deshabilitado si no hay selección o está vacía
+            disabled = is_disabled
           ),
-          # Mostrar mensaje explicativo si está deshabilitado
-          if (is_disabled) {
-            div(
-              style = "margin-top: 10px; color: #e57373; font-style: italic; font-size: 16px; font-weight: bold",
-              "Selecciona un ejemplo de RMedic"
-            )
-          },
-          # Mostrar mensaje de confirmación solo si el estado es confirmed
-          if (button_state() == "confirmed") {
-            div(
-              style = "margin-top: 10px; color: green;",
-              icon("check-circle"), 
-              "Selección confirmada"
-            )
+          if (is.null(input$selected_input_file) || input$selected_input_file == "") {
+            div(style = "margin-top: 10px; color: #e57373; font-style: italic; font-weight: bold",
+                "Selecciona un ejemplo de RMedic")
+          } else if (button_state() == "confirmed") {
+            div(style = "margin-top: 10px; color: green; font-weight: bold;",
+                icon("check-circle"), "Ejemplo cargado con éxito")
           }
         )
       })
       
-      # Datos temporales (no confirmados)
-      temp_data <- reactive({
-        req(check_ok(), sui_data_source(), list_extra())
-        
-        # Validamos si existe primero
-        selected_file <- NULL
-        if (!is.null(input$selected_input_file)) {
-          selected_file <- input$selected_input_file
-        }
-        
-        # Creación de la lista
-        output_list <- list(
-          "data_source" = sui_data_source(),
-          "selected_input_file" = selected_file,
-          "list_extra" = list_extra()
-        )
-        
-        return(output_list)
-      })
-      
-      # Observar cambios en la selección para detectar cambios después de confirmación
+      # --- 4. LÓGICA DE DETECCIÓN DE CAMBIOS Y RESET ---
       observeEvent(input$selected_input_file, {
-        # Si ya hay datos confirmados, verificamos si la selección actual es diferente
+        # Si cambia la selección, invalidamos los datos actuales y liberamos el botón
+        confirmed_data(NULL) 
         if (button_state() == "confirmed") {
-          current_selection <- input$selected_input_file
-          confirmed_selection <- confirmed_data()$selected_input_file
-          
-          # Si la selección ha cambiado, cambiar el estado a "modified"
-          if (!identical(current_selection, confirmed_selection)) {
-            button_state("modified")
-          }
+          button_state("modified")
         }
       }, ignoreInit = TRUE)
       
-      # Observar el botón de confirmación
-      observeEvent(input$confirm_selection, {
-        req(temp_data(), input$selected_input_file, input$selected_input_file != "")
-        
-        # Guardar los datos en el reactiveVal
-        confirmed_data(temp_data())
-        
-        # Cambiar el estado del botón a "confirmed" (verde)
-        button_state("confirmed")
-        
-        # Mostrar un mensaje de éxito
-        showNotification(
-          "Selección confirmada correctamente",
-          type = "message"
-        )
-      })
-      
-      list_extra <- reactive({
-        "No details"
-      })
-      
-      # Observar cambios en check_ok para resetear datos confirmados
       observeEvent(check_ok(), {
         if (!check_ok()) {
           confirmed_data(NULL)
@@ -187,12 +108,23 @@ module_act001_s03_RMedic_01_settings_server <- function(id, sui_data_source){
         }
       })
       
-      # Devolver solo los datos confirmados
+      # --- 5. CONFIRMACIÓN ---
+      observeEvent(input$confirm_selection, {
+        req(input$selected_input_file, input$selected_input_file != "")
+        
+        confirmed_data(list(
+          "data_source" = sui_data_source(),
+          "selected_input_file" = input$selected_input_file,
+          "list_extra" = "No details"
+        ))
+        
+        button_state("confirmed")
+        showNotification(paste("Ejemplo confirmado:", input$selected_input_file), type = "message")
+      })
+      
+      # --- 6. RETORNO ---
       return(reactive({
-        if (!isTruthy(check_ok())) {
-          return(NULL)
-        }
-        # Devolver los datos confirmados, no los temporales
+        if (!isTruthy(check_ok())) return(NULL)
         confirmed_data()
       }))
     }

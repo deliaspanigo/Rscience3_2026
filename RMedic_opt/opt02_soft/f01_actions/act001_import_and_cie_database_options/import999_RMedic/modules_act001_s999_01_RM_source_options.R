@@ -72,7 +72,7 @@ module_act001_s999_01_RM_source_options_server <- function(id){
                       "03 - RMedic examples"  = "source_RMedic",
                       "04 - R examples"       = "source_Rdata",
                       "05 - UCC"              = "source_UCC"),
-          selected = "source_Rdata"
+          selected = "source_xlsx"
           
         )
         

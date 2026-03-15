@@ -12,124 +12,107 @@ module_action002_show_database_ui <- function(id){
 
 
 
-module_action002_show_database_server <- function(id, output_list_database){
+#' Server para el módulo de visualización de la base de datos
+#'
+#' @param id ID del módulo
+#' @param output_list_database Lista reactiva proveniente del módulo de importación
+module_action002_show_database_server <- function(id, output_list_database) {
   
   moduleServer(
     id,
     function(input, output, session) {
       
-      # ns para el server!
       ns <- session$ns
       
+      # --- 1. VALIDACIÓN ---
+      # Esta función asegura que tengamos datos válidos antes de intentar renderizar
       check_ok <- reactive({
-        req(output_list_database(), 
-            output_list_database()$"database",
-            output_list_database()$"original_file_name")
+        out <- output_list_database()
+        # Solo es OK si existe la lista, hay un dataframe y hay un nombre de archivo
+        req(out, out$database, out$original_file_name)
         TRUE
       })
       
+      # --- 2. COMPONENTES DE TEXTO (Solo se ven si hay datos) ---
+      
       output$TextBase_InfoDataSet_01 <- renderText({
-
         req(check_ok())
-
-
-        texto_salida <- c("<u><b>Archivo:</b></u> _mi_archivo_ <br/>
-                           <u><b>Variables (Columnas):</b></u> _ncolBase01_ variables.<br/>
-                           <u><b>Unidades (Filas o repeticiones):</b></u> _nrowBase01_ unidades.<br/>")
-
-
-
-
-        texto_salida <- gsub("_mi_archivo_", output_list_database()$"original_file_name",texto_salida)
-        texto_salida <- gsub("_ncolBase01_", ncol(output_list_database()$"database"),texto_salida)
-        texto_salida <- gsub("_nrowBase01_", nrow(output_list_database()$"database"),texto_salida)
-
-        texto_salida <- paste0("<div style='font-size: 20px;'>", texto_salida, "</div>")
-
-
-        mi_salida <- HTML(texto_salida)
-
-        return(mi_salida)
-
-
+        
+        df   <- output_list_database()$database
+        nome <- output_list_database()$original_file_name
+        
+        texto_salida <- sprintf(
+          "<u><b>Archivo:</b></u> %s <br/>
+           <u><b>Variables (Columnas):</b></u> %s variables.<br/>
+           <u><b>Unidades (Filas o repeticiones):</b></u> %s unidades.<br/>",
+          nome, ncol(df), nrow(df)
+        )
+        
+        paste0("<div style='font-size: 20px;'>", texto_salida, "</div>") %>% HTML()
       })
-
-
+      
       output$title01 <- renderText({
-        
         req(check_ok())
-        
-        
-        
-        texto_salida <- c("Visualización de la Base de Datos")
-        
-        
-        
-        
-        return(texto_salida)
-        
-        
+        "Visualización de la Base de Datos"
       })
       
-      
+      # --- 3. RENDERIZADO DE LA TABLA DT ---
       
       output$df_database <- renderDT({
-        
         req(check_ok())
         
-        mi_tabla <- output_list_database()$"database"
-        new_col_names <- colnames(mi_tabla)
+        mi_tabla <- output_list_database()$database
         
         DT::datatable(
-          mi_tabla, colnames = new_col_names,
-          # filter = 'top',
+          mi_tabla,
+          rownames = TRUE,
           options = list(
             autowidth = TRUE,
             order = list(list(0, 'asc')),
             pageLength = 10,
-            lengthMenu = c(10, 50, 75, 100, 150),
-            dom = 'frtip',  # Elementos de la tabla (sin botones)
+            lengthMenu = c(10, 50, 100),
+            dom = 'frtip',
             language = list(
               search = "Búsqueda:",
               lengthMenu = "Mostrar _MENU_ registros",
-              info = "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
-              infoFiltered = "(filtrados de un total de _MAX_ registros)",
+              info = "Mostrando _START_ al _END_ de _TOTAL_ registros",
               paginate = list(previous = "Anterior", `next` = "Siguiente")
             ),
+            # Estilos Century Gothic y colores solicitados
             initComplete = JS("
-      function(settings, json) {
-        $('body').css({
-          'font-family': 'Century Gothic', 'font-size': '150%'
-        });
-        $(this.api().table().header()).css({
-          'font-family': 'Century Gothic',
-          'font-size':'125%',
-          'background-color': '#008000',
-          'color': '#fff'
-        });
-      }
-    "),
+              function(settings, json) {
+                $(this.api().table().header()).css({
+                  'font-family': 'Century Gothic',
+                  'font-size':'125%',
+                  'background-color': '#008000',
+                  'color': '#fff'
+                });
+                $('body').css({'font-family': 'Century Gothic'});
+              }
+            "),
             rowCallback = JS("
-      function(row, data, index) {
-        if(index % 2 === 0) {
-          $(row).css('background-color', 'lightblue');
-        } else {
-          $(row).css('background-color', 'lightgreen');
-        }
-      }
-    ")
-          ),
-          rownames = TRUE
+              function(row, data, index) {
+                if(index % 2 === 0) {
+                  $(row).css('background-color', 'lightblue');
+                } else {
+                  $(row).css('background-color', 'lightgreen');
+                }
+              }
+            ")
+          )
         )
-        
-        
-        
       })
       
+      # --- 4. ORQUESTADOR DINÁMICO DE LA UI ---
       
       output$show_df <- renderUI({
-        if (!is.null(output_list_database()$"database")) {
-          # Si hay base de datos, permitimos scroll horizontal
+        # Verificamos si hay base de datos cargada EN ESTE MOMENTO
+        # Si el usuario cambió el selector en Settings, esto será NULL inmediatamente
+        base_datos <- output_list_database()$database
+        
+        if (!is.null(base_datos)) {
+          
+          # CASO A: MOSTRAR LA TABLA (Estado Confirmado)
           div(
             style = "overflow-x: auto; width: 100%;",
             fluidRow(
@@ -137,31 +120,25 @@ module_action002_show_database_server <- function(id, output_list_database){
               column(10, 
                      htmlOutput(ns("TextBase_InfoDataSet_01")),
                      br(),
-                     
                      h2(tags$u(tags$b(textOutput(ns("title01"))))),
-                     withSpinner(DTOutput(ns("df_database")))),
+                     # withSpinner requiere la librería shinycssloaders
+                     shinycssloaders::withSpinner(DTOutput(ns("df_database")))
+              ),
               column(1)
             )
           )
+          
         } else {
-          # Si no hay base de datos, no necesitamos scroll
+          
+          # CASO B: MOSTRAR LOGO (Estado Inicial o Cambio de Selección)
           fluidRow(
             column(12, 
-                   bslib::card(
-                     #bslib::card_header("Base de datos"),
-                     bslib::card_body(
-                       div(
-                         class = "text-center",
-                         tags$h4("No hay base de datos cargada"),
-                         tags$p("Por favor, cargue una base de datos para visualizarla aquí."),
-                         tags$br(),
-                         # tags$img(src = "png/img_02_UCC.png", width = "150px", style = "opacity: 0.5;"),
-                         
-                         tags$img(src = "png/img_01_RMedic.png", width = "150px", style = "opacity: 0.5;"),
-                         # tags$img(src = "png/img_03_ENIAX.png", width = "150px", style = "opacity: 0.5;"),
-                         
-                       )
-                     )
+                   div(
+                     style = "display: flex; flex-direction: column; align-items: center; 
+                              justify-content: center; height: 70vh; opacity: 0.4;",
+                     tags$img(src = "png/img_01_RMedic.png", width = "250px"),
+                     tags$h3("Esperando confirmación de datos...", 
+                             style = "color: #888; margin-top: 20px; font-family: 'Century Gothic';")
                    )
             )
           )

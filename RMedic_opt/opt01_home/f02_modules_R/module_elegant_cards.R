@@ -119,7 +119,7 @@ module_elegant_cards_UI <- function(id) {
         ),
         div(class = "content-paragraph",
             div(class = "bullet-item", icon("check-circle", class = "bullet-icon", style="color:#56ab2f"), "Análisis desarrollado para ciencias de la salud."),
-            div(class = "bullet-item", icon("check-circle", class = "bullet-icon", style="color:#56ab2f"), "Estandarización en la toma de decisiones clínicas.")
+            div(class = "bullet-item", icon("check-circle", class = "bullet-icon", style="color:#56ab2f"), "Estandarización en la toma de decisiones.")
         )
       ),
       

@@ -96,7 +96,7 @@ module_opt04_cita_UI <- function(id) {
             p("Utilice el siguiente texto para describir el procesamiento estadístico:"),
             
             div(class = "methodology-box",
-                span("Se utilizó el software estadístico RMedic versión 3.2.4 para todas las tablas, gráficos y análisis estadísticos."),
+                span("Se utilizó el software estadístico RMedic versión 3.2.5 para todas las tablas, gráficos y análisis estadísticos."),
                 tags$button(
                   class = "copy-icon-btn btn-light-bg",
                   onclick = "navigator.clipboard.writeText('Se utilizó el software estadístico RMedic versión 3.2.4 para todas las tablas, gráficos y análisis estadísticos.'); this.style.color='#2e7d32'; setTimeout(()=>this.style.color='#0d47a1', 1000);",

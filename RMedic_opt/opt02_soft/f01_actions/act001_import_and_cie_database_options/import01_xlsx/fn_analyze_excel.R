@@ -1,68 +1,40 @@
-
-analyze_excel <- function(file_path) {
-  # Validate that the file exists
-  if (!file.exists(file_path)) {
-    stop("The file does not exist at the specified path")
-  }
+analyze_excel <- function(file_path, sheet_to_analyze = NULL) {
+  if (!file.exists(file_path)) stop("The file does not exist")
+  if (!grepl("\\.xlsx$", file_path, ignore.case = TRUE)) stop("Not a .xlsx file")
   
-  # Validate that it's an Excel .xlsx file
-  if (!grepl("\\.xlsx$", file_path, ignore.case = TRUE)) {
-    stop("The file does not appear to be an Excel .xlsx file")
-  }
-  
-  # Get the file size in MB
   file_size <- file.size(file_path) / (1024 * 1024)
+  all_sheets <- readxl::excel_sheets(file_path)
   
-  # Get sheet names
-  sheet_names <- readxl::excel_sheets(file_path)
-  sheet_count <- length(sheet_names)
+  # Si el usuario eligió una hoja, filtramos la lista para procesar solo esa
+  sheets_to_process <- if (!is.null(sheet_to_analyze)) {
+    if (!(sheet_to_analyze %in% all_sheets)) stop("Selected sheet not found")
+    sheet_to_analyze
+  } else {
+    all_sheets
+  }
   
-  # Get information for each sheet
-  sheets_info <- lapply(sheet_names, function(sheet) {
-    # Read only structure to count columns
-    structure <- suppressMessages(
-      readxl::read_excel(file_path, sheet = sheet, n_max = 0)
-    )
-    columns <- ncol(structure)
-    
-    # Count rows efficiently
-    rows <- 0
-    chunk_size <- 10000
-    
-    repeat {
-      data_chunk <- suppressMessages(
-        readxl::read_excel(file_path, sheet = sheet, 
-                           skip = rows, n_max = chunk_size,
-                           col_names = FALSE, .name_repair = "minimal")
-      )
-      
-      if (nrow(data_chunk) == 0) break
-      
-      rows <- rows + nrow(data_chunk)
-      
-      if (nrow(data_chunk) < chunk_size) break
-    }
+  sheets_info <- lapply(sheets_to_process, function(sheet) {
+    # Leemos la hoja completa (es más seguro para obtener dimensiones exactas)
+    # Si el archivo es GIGANTE (>100k filas), podrías volver al método chunk
+    # pero para archivos normales, read_excel es suficiente.
+    tmp_data <- suppressMessages(readxl::read_excel(file_path, sheet = sheet))
     
     list(
       name = sheet,
-      rows = rows,
-      columns = columns
+      rows = nrow(tmp_data),
+      columns = ncol(tmp_data)
     )
   })
-  df_sheets_info <- do.call(rbind.data.frame, sheets_info)
-  vector_cols <- df_sheets_info[,"columns"]
-  vector_rows <- df_sheets_info[,"rows"]
   
-  # Build result
-  result <- list(
+  df_sheets_info <- do.call(rbind.data.frame, sheets_info)
+  
+  # Devolvemos la estructura que tu código espera
+  return(list(
     file_path = file_path,
     file_size_mb = round(file_size, 2),
-    sheet_count = sheet_count,
+    sheet_count = length(all_sheets), # Total de hojas en el archivo
     sheets_info = df_sheets_info,
-    vector_cols = vector_cols,
-    vector_rows = vector_rows
-  )
-  
-  
-  return(result)
+    vector_cols = df_sheets_info[,"columns"],
+    vector_rows = df_sheets_info[,"rows"]
+  ))
 }

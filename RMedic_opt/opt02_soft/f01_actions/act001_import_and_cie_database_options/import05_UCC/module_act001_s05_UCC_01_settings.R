@@ -14,198 +14,100 @@ module_act001_s05_UCC_01_settings_server <- function(id, sui_data_source){
     id,
     function(input, output, session) {
       
-      # ns para el server!
       ns <- session$ns
       
-      # ReactiveVal para almacenar datos confirmados
+      # --- 1. ESTADOS REACTIVOS ---
       confirmed_data <- reactiveVal(NULL)
-      
-      # ReactiveVal para rastrear el estado del botón
-      button_state <- reactiveVal("initial")  # initial, confirmed, modified
+      button_state <- reactiveVal("initial") # initial, confirmed, modified
       
       check_ok <- reactive({
         req(sui_data_source())
         sui_data_source() == "source_UCC"
       })
       
-      ################################################
-      
-      output$"carrera_selector" <- renderUI({
+      # --- 2. SELECTORES DINÁMICOS ---
+      output$carrera_selector <- renderUI({
         req(check_ok())
-        vector_opt <- c("Medicina" = "MD", 
-                        "Odontología" =  "ODT")
-        
-        vector_opt <- c("Seleccione..." = "", vector_opt)
+        vector_opt <- c("Seleccione..." = "", 
+                        "Medicina" = "MD", 
+                        "Odontología" = "ODT")
         
         selectInput(inputId = ns("the_carrera"), 
                     label = "Carrera", 
-                    choices = vector_opt 
-                      )
+                    choices = vector_opt)
       })
       
-      # UCC - medicina 
-      
       all_names_database <- reactive({
-        req(check_ok())
-        req(input$"the_carrera")
-        
-        # list.files(input_folder_master)
-        #datasets_info <- data(package = "RMedic")
-        #dataset_names <- datasets_info$results[, "Item"]
+        req(check_ok(), input$the_carrera)
         dataset_names <- names(data_list_RMedic)
-        my_str <- paste0("^", input$"the_carrera")
-        
-        dataset_names <- dataset_names[grepl(pattern = my_str, x = dataset_names)]
-        # print( dataset_names)
-        dataset_names
-        
+        my_str <- paste0("^", input$the_carrera)
+        dataset_names[grepl(pattern = my_str, x = dataset_names)]
       })
       
       select_opt_database <- reactive({
-        req(check_ok())
         req(all_names_database())
-        req(input$"the_carrera")
-        # # # Nombre de las bases de datos
         vector_obj <- all_names_database()
-        
-        # # # Numero de orden, desed 01 hasta la ultima
         vector_numbers <- 1:length(vector_obj)
-        amount_digits <- max(nchar(vector_numbers))
-        if(amount_digits < 2) amount_digits <- 2
+        amount_digits <- max(nchar(vector_numbers), 2)
         
-        vector_formatted_numbers <- stringr::str_pad(string = vector_numbers,
-                                                     width = amount_digits,
-                                                     pad = "0")
-        
-        # Vector con la visualizacion que tiene el usuario
+        vector_formatted_numbers <- stringr::str_pad(vector_numbers, width = amount_digits, pad = "0")
         vector_visual <- paste0(vector_formatted_numbers, " - ", vector_obj)
-        
-        # Asignamos la visual a al vector
         names(vector_obj) <- vector_visual
-        
-        
-        # Salida!
         vector_obj
-        
       })
       
       output$iu_base_selector <- renderUI({
-        req(check_ok())
-        req(input$"the_carrera")
+        req(check_ok(), input$the_carrera)
         vector_visual <- c("Seleccione una..." = "", select_opt_database())
         
-        
-        shiny::selectInput(
-          inputId = ns("selected_input_file"),
-          label = "UCC Examples",
-          choices = vector_visual
-        )
+        selectInput(inputId = ns("selected_input_file"),
+                    label = "UCC Examples",
+                    choices = vector_visual)
       })
       
-      
-      
-      
-      
-      
-      
-      
-      # UI para el botón de acción - MODIFICADO para mostrarse siempre
+      # --- 3. BOTÓN DE ACCIÓN (CON BLOQUEO) ---
       output$ui_action_button <- renderUI({
-        req(check_ok())  # Solo requiere que check_ok sea TRUE
+        req(check_ok())
         
-        # Determinar la clase del botón según su estado
         btn_class <- switch(button_state(),
-                            "initial" = "btn-primary",    # Azul inicial
-                            "confirmed" = "btn-success",  # Verde después de confirmar
-                            "modified" = "btn-primary")   # Vuelve a azul si se modifica
+                            "initial"   = "btn-primary",
+                            "confirmed" = "btn-success",
+                            "modified"  = "btn-primary")
         
-        # Determinar si el botón debe estar deshabilitado
-        is_disabled <- is.null(input$selected_input_file) || input$selected_input_file == ""
+        # BLOQUEO: Deshabilitado si falta selección o ya está confirmado
+        is_disabled <- is.null(input$selected_input_file) || 
+          input$selected_input_file == "" || 
+          button_state() == "confirmed"
         
-        div(
-          style = "margin-top: 15px;",
-          actionButton(
-            inputId = ns("confirm_selection"),
-            label = "Confirmar selección",
-            icon = icon("check"),
-            class = btn_class,
-            width = "100%",
-            disabled = is_disabled  # Deshabilitado si no hay selección o está vacía
-          ),
-          # Mostrar mensaje explicativo si está deshabilitado
-          if (is_disabled) {
-            div(
-              style = "margin-top: 10px; color: #e57373; font-style: italic; font-size: 16px; font-weight: bold",
-              "Selecciona un ejemplo de UCC"
-            )
-          },
-          # Mostrar mensaje de confirmación solo si el estado es confirmed
-          if (button_state() == "confirmed") {
-            div(
-              style = "margin-top: 10px; color: green;",
-              icon("check-circle"), 
-              "Selección confirmada"
-            )
-          }
+        div(style = "margin-top: 15px;",
+            actionButton(
+              inputId = ns("confirm_selection"),
+              label   = if(button_state() == "confirmed") "Selección Confirmada" else "Confirmar selección",
+              icon    = icon(if(button_state() == "confirmed") "check-double" else "check"),
+              class   = btn_class,
+              width   = "100%",
+              disabled = is_disabled
+            ),
+            if (is_disabled && button_state() != "confirmed") {
+              div(style = "margin-top: 10px; color: #e57373; font-style: italic; font-weight: bold",
+                  "Selecciona carrera y ejemplo")
+            } else if (button_state() == "confirmed") {
+              div(style = "margin-top: 10px; color: green; font-weight: bold;",
+                  icon("check-circle"), "Datos de UCC listos")
+            }
         )
       })
       
-      # Datos temporales (no confirmados)
-      temp_data <- reactive({
-        req(check_ok(), sui_data_source(), list_extra())
-        
-        # Validamos si existe primero
-        selected_file <- NULL
-        if (!is.null(input$selected_input_file)) {
-          selected_file <- input$selected_input_file
-        }
-        
-        # Creación de la lista
-        output_list <- list(
-          "data_source" = sui_data_source(),
-          "selected_input_file" = selected_file,
-          "list_extra" = list_extra()
-        )
-        
-        return(output_list)
-      })
+      # --- 4. LÓGICA DE RESET Y CAMBIOS ---
       
-      # Observar cambios en la selección para detectar cambios después de confirmación
-      observeEvent(input$selected_input_file, {
-        # Si ya hay datos confirmados, verificamos si la selección actual es diferente
+      # Si cambia la carrera o la base, invalidamos y habilitamos botón
+      observeEvent(list(input$the_carrera, input$selected_input_file), {
+        confirmed_data(NULL) 
         if (button_state() == "confirmed") {
-          current_selection <- input$selected_input_file
-          confirmed_selection <- confirmed_data()$selected_input_file
-          
-          # Si la selección ha cambiado, cambiar el estado a "modified"
-          if (!identical(current_selection, confirmed_selection)) {
-            button_state("modified")
-          }
+          button_state("modified")
         }
       }, ignoreInit = TRUE)
       
-      # Observar el botón de confirmación
-      observeEvent(input$confirm_selection, {
-        req(temp_data(), input$selected_input_file, input$selected_input_file != "")
-        
-        # Guardar los datos en el reactiveVal
-        confirmed_data(temp_data())
-        
-        # Cambiar el estado del botón a "confirmed" (verde)
-        button_state("confirmed")
-        
-        # Mostrar un mensaje de éxito
-        showNotification(
-          "Selección confirmada correctamente",
-          type = "message"
-        )
-      })
-      
-      list_extra <- reactive({
-        "No details"
-      })
-      
-      # Observar cambios en check_ok para resetear datos confirmados
       observeEvent(check_ok(), {
         if (!check_ok()) {
           confirmed_data(NULL)
@@ -213,12 +115,23 @@ module_act001_s05_UCC_01_settings_server <- function(id, sui_data_source){
         }
       })
       
-      # Devolver solo los datos confirmados
+      # --- 5. CONFIRMACIÓN ---
+      observeEvent(input$confirm_selection, {
+        req(input$selected_input_file, input$selected_input_file != "")
+        
+        confirmed_data(list(
+          "data_source" = sui_data_source(),
+          "selected_input_file" = input$selected_input_file,
+          "list_extra" = list("carrera" = input$the_carrera)
+        ))
+        
+        button_state("confirmed")
+        showNotification(paste("UCC Confirmado:", input$selected_input_file), type = "message")
+      })
+      
+      # --- 6. RETORNO ---
       return(reactive({
-        if (!isTruthy(check_ok())) {
-          return(NULL)
-        }
-        # Devolver los datos confirmados, no los temporales
+        if (!isTruthy(check_ok())) return(NULL)
         confirmed_data()
       }))
     }

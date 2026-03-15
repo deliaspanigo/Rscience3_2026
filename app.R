@@ -38,6 +38,18 @@ ui <- shiny::navbarPage(inverse=TRUE,
                         tags$head(
                           tags$style(HTML("
                           
+  /* Eliminar el guion/subrayado en los enlaces con imágenes */
+  a:hover, a:focus {
+    text-decoration: none !important;
+    outline: none !important;
+  }
+  
+  /* Específicamente para las imágenes dentro de enlaces */
+  a img {
+    border: none !important;
+    text-decoration: none !important;
+  }
+
                           .well {
   
    padding: 12px;
@@ -251,7 +263,7 @@ ui <- shiny::navbarPage(inverse=TRUE,
         "))
                         ),   
                         
-                        title = strong("RMedic 3.2.4"),
+                        title = strong("RMedic 3.2.5"),
                         windowTitle = "RMedic - Medicina y R", 
                         fluid = TRUE, 
                         # header = column(12, ""),
@@ -260,7 +272,10 @@ ui <- shiny::navbarPage(inverse=TRUE,
                                         # Botón de donaciones de PayPal
                                         div( id = "footer",
                                              style = "text-align: center;",
-                                          tags$img(src = "rmediclogo.png", height = "50px"),  # Imagen
+                                             tags$a(href = "https://www.linkedin.com/company/r-medic", target = "_blank", rel = "noopener noreferrer",
+                                                    tags$img(src = "rmediclogo.png", style = "cursor: pointer;", height = "50px"))
+                                             
+                                          #tags$img(src = "rmediclogo.png", height = "50px"),  # Imagen
                                           #tags$img(src = "img01_ucc.png", height = "30px"),  # Imagen
                                           #tags$img(src = "img02_ucc_salud.png", height = "30px"),  # Imagen
                                           #tags$img(src = "img03_reina_2025.png", height = "30px"),  # Imagen
@@ -328,7 +343,15 @@ ui <- shiny::navbarPage(inverse=TRUE,
                               
                               # Versión Actual
                               div(class = "timeline-item version-current",
-                                  span(class = "version-tag badge-current", "v3.2.4"),
+                                  span(class = "version-tag badge-current", "v3.2.5"),
+                                  span(class = "version-date", "2026-03-15"),
+                                  h4("Lanzamiento Actual", style="margin-top:10px; font-weight:700;"),
+                                  tags$ul(
+                                    tags$li("Optimización del módulo de carga de datos.")                                  )
+                              ),
+                              
+                              div(class = "timeline-item",
+                                  span(class = "version-tag", "v3.2.4"),
                                   span(class = "version-date", "2026-02-26"),
                                   h4("Lanzamiento Actual", style="margin-top:10px; font-weight:700;"),
                                   tags$ul(

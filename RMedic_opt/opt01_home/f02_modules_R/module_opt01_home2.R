@@ -1,12 +1,11 @@
 module_opt01_home2_UI <- function(id) {
   ns <- NS(id)
   
-  div(
-    tagList(
-      tags$head(
-        tags$script(type="text/javascript", src = "busy.js"),
-        tags$link(rel="shortcut icon", href="./rmediclogo.jpg"),
-        tags$style(HTML("
+  tagList(
+    tags$head(
+      tags$script(type="text/javascript", src = "busy.js"),
+      tags$link(rel="shortcut icon", href="./rmediclogo.jpg"),
+      tags$style(HTML("
           /* Evitar scroll horizontal innecesario */
           body, html { overflow-x: hidden !important; }
           
@@ -49,7 +48,7 @@ module_opt01_home2_UI <- function(id) {
           
           .carousel img {
             display: inline-block;
-            height: 80px; /* Tamaño más equilibrado para logos institucionales */
+            height: 80px; 
             margin: 0 40px;
             vertical-align: middle;
             filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.1));
@@ -72,7 +71,6 @@ module_opt01_home2_UI <- function(id) {
           }
           .social-link:hover { color: #004182; }
         "))
-      )
     ),
     
     div(id = ns("home"), class = "home-wrapper",
@@ -80,7 +78,10 @@ module_opt01_home2_UI <- function(id) {
         fluidRow(
           # Columna Izquierda: Identidad RMedic
           column(3, 
-                 img(src = "rmediclogo.png", width = "300", class = "main-logo"),
+                 tags$a(href = "https://www.linkedin.com/company/r-medic", target = "_blank", rel = "noopener noreferrer",
+                        tags$img(src = "rmediclogo.png", style = "cursor: pointer;",  width = "300", class = "main-logo")),
+                 
+                 #img(src = "rmediclogo.png",),
                  br(), br(),
                  tags$a(icon("linkedin"), 
                         href = "https://www.linkedin.com/company/r-medic/", 
@@ -92,35 +93,58 @@ module_opt01_home2_UI <- function(id) {
           column(9, 
                  br(),
                  # Area de Logos Rotativos (ENIAX)
-                 div(style = "min-height: 110px;", # Evita saltos de layout al cambiar img
-                     img(id = ns("eniax_rotativo"), 
+                 div(style = "min-height: 110px;", 
+                     tags$a(
+                       href = "https://eniax.care/", 
+                       target = "_blank", 
+                       rel = "noopener noreferrer",
+                       img(
+                         id = ns("eniax_rotativo"), 
                          src = "empresas/img_01_ENIAX.png", 
-                         class = "logo-eniax-fijo")
+                         class = "logo-eniax-fijo",
+                         style = "cursor: pointer;"
+                       )
+                     )
                  ),
                  
                  # Carrusel Infinito
                  div(class = "carousel-container",
                      div(class = "carousel",
-                         # Set 1
-                         tags$img(src = "academia/img01_ucc.png"),
-                         tags$img(src = "academia/img02_ucc_salud.png"),
-                         tags$img(src = "academia/img03_reina_2025.png"),
-                         tags$img(src = "academia/img_02_ENIAX.png"),
-                         # Set 2 (Duplicado exacto para efecto infinito)
-                         tags$img(src = "academia/img01_ucc.png"),
-                         tags$img(src = "academia/img02_ucc_salud.png"),
-                         tags$img(src = "academia/img03_reina_2025.png"),
-                         tags$img(src = "academia/img_02_ENIAX.png")
+                         # --- SET 1 ---
+                         tags$a(href = "https://www.ucc.edu.ar/", target = "_blank", rel = "noopener noreferrer",
+                                tags$img(src = "academia/img01_ucc.png", style = "cursor: pointer;")),
+                         
+                         tags$a(href = "https://www.ucc.edu.ar/ciencias-salud", target = "_blank", rel = "noopener noreferrer",
+                                tags$img(src = "academia/img02_ucc_salud.png", style = "cursor: pointer;")),
+                         
+                         tags$a(href = "https://curf.com.ar/", target = "_blank", rel = "noopener noreferrer",
+                                tags$img(src = "academia/img03_reina_2025.png", style = "cursor: pointer;")),
+                         
+                         tags$a(href = "https://eniax.care/", target = "_blank", rel = "noopener noreferrer",
+                                tags$img(src = "academia/img_02_ENIAX.png", style = "cursor: pointer;")),
+                         
+                         # --- SET 2 (DUPLICADO PARA EFECTO INFINITO) ---
+                         tags$a(href = "https://www.ucc.edu.ar/", target = "_blank",
+                                tags$img(src = "academia/img01_ucc.png", style = "cursor: pointer;")),
+                         
+                         tags$a(href = "https://www.ucc.edu.ar/ciencias-salud", target = "_blank",
+                                tags$img(src = "academia/img02_ucc_salud.png", style = "cursor: pointer;")),
+                         
+                         tags$a(href = "https://curf.com.ar/", target = "_blank",
+                                tags$img(src = "academia/img03_reina_2025.png", style = "cursor: pointer;")),
+                         
+                         tags$a(href = "https://eniax.care/", target = "_blank",
+                                tags$img(src = "academia/img_02_ENIAX.png", style = "cursor: pointer;"))
                      )
                  )
           )
         ),
         
-        # Módulo de Tarjetas (v.0.0.1)
+        # Módulo de Tarjetas
         module_elegant_cards_UI(id = ns("card_card"))
     ),
     
-    # Script de Rotación mejorado
+    # Script de Rotación
     tags$script(HTML(sprintf("
       $(document).ready(function() {
         var images = [
@@ -147,9 +171,6 @@ module_opt01_home2_UI <- function(id) {
 
 module_opt01_home2_SERVER <- function(id) {
   moduleServer(id, function(input, output, session) {
-    
-    
     module_elegant_cards_SERVER(id = "card_card")
-    
   })
 }

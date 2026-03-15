@@ -3,7 +3,8 @@
 #renv::activate()
 
 options(encoding = "UTF-8")
-options(shiny.maxRequestSize = 500*1024^2)
+#options(shiny.maxRequestSize = 500*1024^2)
+options(shiny.maxRequestSize = 1024 * 1024^2) # Hasta 1 Gb
 
 # remotes::install_github("RinteRface/fullPage")
 # library(fullPage)

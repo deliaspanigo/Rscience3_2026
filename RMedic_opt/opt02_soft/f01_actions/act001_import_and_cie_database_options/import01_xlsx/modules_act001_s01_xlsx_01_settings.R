@@ -8,266 +8,145 @@ module_act001_s01_xlsx_01_settings_ui <- function(id){
   )
 }
 
+#' Server para el módulo de configuración de Excel (XLSX)
+#'
+#' @param id ID del módulo
+#' @param sui_data_source Reactive que indica la fuente seleccionada
+#' @return Reactive con la lista de configuración confirmada o NULL
 module_act001_s01_xlsx_01_settings_server <- function(id, sui_data_source){
-  
-  moduleServer(
-    id,
-    function(input, output, session) {
+  moduleServer(id, function(input, output, session) {
+    ns <- session$ns
+    
+    # --- 1. ESTADOS REACTIVOS ---
+    confirmed_data <- reactiveVal(NULL)
+    button_state   <- reactiveVal("initial") # initial, confirmed, modified, error
+    error_message  <- reactiveVal(NULL)
+    
+    # Validación de pertenencia a este módulo
+    check_ok <- reactive({
+      req(sui_data_source())
+      sui_data_source() == "source_xlsx"
+    })
+    
+    # --- 2. RENDERIZADO DE INTERFAZ (UI) ---
+    
+    # Selector de Archivo
+    output$iu_base_selector <- renderUI({
+      req(check_ok())
+      tagList(
+        fileInput(ns("selected_input_file"), "Elige un archivo xlsx", 
+                  accept = c(".xlsx"), width = "100%"),
+        uiOutput(ns("ui_sheet_selector"))
+      )
+    })
+    
+    # Selector de Hoja (Dinámico)
+    output$ui_sheet_selector <- renderUI({
+      req(input$selected_input_file)
       
-      # ns para el server!
-      ns <- session$ns
-      
-      # ReactiveVal para almacenar datos confirmados
-      confirmed_data <- reactiveVal(NULL)
-      
-      # ReactiveVal para rastrear el estado del botón
-      # Añadimos "error" como nuevo estado posible
-      button_state <- reactiveVal("initial")  # initial, confirmed, modified, error
-      
-      # ReactiveVal para almacenar mensajes de error
-      error_message <- reactiveVal(NULL)
-      
-      check_ok <- reactive({
-        req(sui_data_source())
-        sui_data_source() == "source_xlsx"
+      # Extraer nombres de hojas sin cargar datos
+      tryCatch({
+        sheets <- readxl::excel_sheets(input$selected_input_file$datapath)
+        selectInput(ns("selected_sheet"), "Selecciona la hoja a importar:",
+                    choices = c("Seleccione una..." = "", sheets))
+      }, error = function(e) {
+        div(style="color:red", "Error al leer las hojas del archivo.")
       })
+    })
+    
+    # Botón de Acción con Bloqueo
+    output$ui_action_button <- renderUI({
+      req(check_ok())
       
-      output$iu_base_selector <- renderUI({
-        req(check_ok())
-        div(
-          fileInput(ns("selected_input_file"), "Elige un archivo xlsx (Solo primer hoja)",
-                    accept = c(
-                      ".xlsx")
-          )
-        )
-      })
+      # Estilo dinámico
+      btn_class <- switch(button_state(),
+                          "initial"   = "btn-primary",
+                          "confirmed" = "btn-success",
+                          "modified"  = "btn-primary",
+                          "error"     = "btn-danger")
       
-      # UI para el botón de acción - MODIFICADO para incluir estado de error
-      output$ui_action_button <- renderUI({
-        req(check_ok())  # Solo requiere que check_ok sea TRUE, no requiere archivo
-        
-        # Determinar la clase y estado del botón
-        btn_class <- switch(button_state(),
-                            "initial" = "btn-primary",    # Azul inicial
-                            "confirmed" = "btn-success",  # Verde después de confirmar
-                            "modified" = "btn-primary",   # Vuelve a azul si se modifica
-                            "error" = "btn-danger")       # Rojo en caso de error
-        
-        # Determinar si el botón debe estar deshabilitado
-        is_disabled <- is.null(input$selected_input_file)
-        
-        div(
-          style = "margin-top: 15px;",
+      # LÓGICA DE BLOQUEO: Deshabilitar si no hay selección O si ya está confirmado
+      is_disabled <- is.null(input$selected_input_file) || 
+        is.null(input$selected_sheet) || 
+        input$selected_sheet == "" ||
+        button_state() == "confirmed"
+      
+      div(style = "margin-top: 15px;",
           actionButton(
-            inputId = ns("confirm_selection"),
-            label = "Confirmar selección",
-            icon = icon("check"),
-            class = btn_class,
-            width = "100%",
-            disabled = is_disabled  # Deshabilitado si no hay archivo
+            inputId = ns("confirm_selection"), 
+            label   = if(button_state() == "confirmed") "Selección Confirmada" else "Confirmar selección",
+            icon    = icon(if(button_state() == "confirmed") "check-double" else "check"), 
+            class   = btn_class, 
+            width   = "100%",
+            disabled = is_disabled
           ),
-          # Mostrar mensaje explicativo si está deshabilitado
-          if (is_disabled) {
-            div(
-              style = "margin-top: 10px; color: #e57373; font-style: italic; font-size: 16px; font-weight: bold",
-              "Selecciona un archivo Excel"
-            )
-          },
-          # Mostrar mensaje de confirmación solo si el estado es confirmed
-          if (button_state() == "confirmed") {
-            div(
-              style = "margin-top: 10px; color: green;",
-              icon("check-circle"), 
-              "Selección confirmada"
-            )
-          },
           
-          # Mostrar mensaje de error si hay uno
-          if (!is.null(error_message())) {
-            div(
-              style = "margin-top: 10px; color: #d32f2f; font-weight: bold;",
-              icon("exclamation-triangle"), 
-              HTML(error_message())  # Utilizamos HTML() para interpretar las etiquetas <br>
-            )
+          # Mensajes de guía al usuario
+          if (is.null(input$selected_input_file) || is.null(input$selected_sheet) || input$selected_sheet == "") {
+            div(style = "margin-top: 10px; color: #e57373; font-style: italic; font-weight: bold",
+                icon("arrow-up"), " Sube un archivo y elige una hoja")
+          } else if (button_state() == "confirmed") {
+            div(style = "margin-top: 10px; color: green; font-weight: bold;", 
+                icon("info-circle"), " La base de datos está lista.")
+          } else if (button_state() == "modified") {
+            div(style = "margin-top: 10px; color: #0275d8; font-style: italic;",
+                icon("exclamation-circle"), " Cambios detectados. Confirma para actualizar.")
           }
-          
-        )
-      })
+      )
+    })
+    
+    # --- 3. LÓGICA DE RESET Y CONTROL ---
+    
+    # RESET INSTANTÁNEO: Si cambia el archivo o la hoja, invalidamos los datos
+    # Esto dispara la desaparición de la tabla y la aparición del logo RMedic
+    observeEvent(list(input$selected_input_file, input$selected_sheet), {
+      confirmed_data(NULL) 
+      error_message(NULL)
       
-      list_extra <- reactive({
-        req(input$selected_input_file)
-        
-        path_sucio <-  input$selected_input_file$datapath
-        path_limpio <- normalizePath(path_sucio, winslash = "/", mustWork = FALSE)
-        
-        
-        print(input$selected_input_file$datapath)
-        print( path_limpio)
-        new_list <- list(
-          "selected_input_file" = input$selected_input_file,
-          "temporal_file_path"  =  path_limpio, #input$selected_input_file$datapath,
-          "original_file_name"  = input$selected_input_file$name,
-          "xlsx_file_details"   = analyze_excel(input$selected_input_file$datapath)
-        )
-      })
-      
-      # Función para validar el archivo Excel
-      validate_excel_file <- function() {
-        req(input$selected_input_file, list_extra())
-        
-        # Obtener detalles del Excel
-        excel_details <- list_extra()$xlsx_file_details
-        
-        # Lista para almacenar mensajes de error
-        validation_errors <- c()
-        
-        # Verificar tamaño del archivo (en MB)
-        if (excel_details$file_size_mb > 50) {
-          validation_errors <- c(validation_errors, 
-                                 paste("El archivo pesa", excel_details$file_size_mb, 
-                                       "MB, excediendo el límite de 50 MB"))
-        }
-        
-        # Verificar número de hojas
-        if (excel_details$sheet_count > 1) {
-          validation_errors <- c(validation_errors, 
-                                 paste("El archivo contiene", excel_details$sheet_count, 
-                                       "hojas. Solo se permiten archivos xlsx con 1 hoja."))
-        }
-        
-        # Verificar número de columnas (primera hoja)
-        if (excel_details$vector_cols[1] > 200) {
-          validation_errors <- c(validation_errors, 
-                                 paste("La hoja del archivo xlsx contiene", excel_details$vector_cols[1], 
-                                       "columnas, excediendo el límite de 200 columnas."))
-        }
-        
-        # Verificar número de filas (primera hoja)
-        if (excel_details$vector_rows[1] > 5000) {
-          validation_errors <- c(validation_errors, 
-                                 paste("La hoja del archivo xlsx contiene", excel_details$vector_rows[1], 
-                                       "filas, excediendo el límite de 5000 filas."))
-        }
-        
-        # Si hay errores de validación, retornar la lista de errores
-        if (length(validation_errors) > 0) {
-          return(validation_errors)
-        }
-        
-        # Si no hay errores, retornar NULL
-        return(NULL)
+      # Si el usuario cambia algo, el botón deja de estar verde y se habilita de nuevo
+      if (button_state() == "confirmed") {
+        button_state("modified")
       }
+    }, ignoreInit = TRUE)
+    
+    # Lógica de Confirmación
+    observeEvent(input$confirm_selection, {
+      req(input$selected_input_file, input$selected_sheet)
       
-      # Datos temporales (no confirmados)
-      temp_data <- reactive({
-        req(sui_data_source(), input$selected_input_file, list_extra())
-        
-        # Validamos si existe primero
-        selected_file <- NULL
-        if (!is.null(input$selected_input_file)) {
-          selected_file <- input$selected_input_file
-        }
-        
-        # Creación de la lista
-        output_list <- list(
-          "data_source" = sui_data_source(),
-          "selected_input_file" = selected_file,
-          "list_extra" = list_extra()
-        )
-        
-        return(output_list)
-      })
+      path <- input$selected_input_file$datapath
+      hoja <- input$selected_sheet
       
-      # Observar cambios en la selección del archivo
-      observeEvent(input$selected_input_file, {
-        # Resetear mensaje de error cuando cambia el archivo
-        error_message(NULL)
-        
-        # Si ya hay datos confirmados, verificamos si la selección actual es diferente
-        if (button_state() == "confirmed" && !is.null(input$selected_input_file)) {
-          current_file <- input$selected_input_file$name
-          confirmed_file <- confirmed_data()$selected_input_file$name
-          
-          # Si el archivo ha cambiado, cambiar el estado a "modified"
-          if (!identical(current_file, confirmed_file)) {
-            button_state("modified")
-          }
-        } else if (button_state() == "error") {
-          # Si estaba en estado de error, volver a initial
-          button_state("initial")
-        }
-      }, ignoreInit = TRUE)
-      
-      # Observar el botón de confirmación - MODIFICADO para validar al hacer clic
-      observeEvent(input$confirm_selection, {
-        req(temp_data(), input$selected_input_file)
-        
-        # Validar el archivo antes de confirmar
-        validation_errors <- validate_excel_file()
-        
-        if (!is.null(validation_errors)) {
-          # Si hay errores, cambiar el estado del botón a "error" (rojo)
-          button_state("error")
-          
-          # Crear y mostrar mensaje de error
-          error_msg <- paste("No se pudo importar el archivo Excel debido a las siguientes limitaciones:", 
-                             paste(validation_errors, collapse = "<br>"), 
-                             sep = "<br>")
-          
-          error_message(error_msg)
-          
-          # Mostrar pop-up con el error
-          showModal(
-            modalDialog(
-              title = "Error de validación",
-              HTML(error_msg),
-              easyClose = TRUE,
-              footer = modalButton("Cerrar"),
-              size = "m",
-              style = "color: #721c24; background-color: #f8d7da; border-color: #f5c6cb;"
-            )
+      tryCatch({
+        # Almacenamos la lista que espera el módulo de Importación
+        confirmed_data(list(
+          "data_source"         = sui_data_source(),
+          "selected_input_file" = input$selected_input_file,
+          "selected_sheet"      = hoja,
+          "list_extra"          = list(
+            "temporal_file_path" = normalizePath(path, winslash = "/", mustWork = FALSE),
+            "original_file_name" = input$selected_input_file$name
           )
-          
-          # Resetear el FileInput para forzar la selección de otro archivo
-          session$sendInputMessage("selected_input_file", NULL)
-          
-          # No confirmar los datos
-          return()
-        }
+        ))
         
-        # Si no hay errores, guardar los datos en el reactiveVal
-        confirmed_data(temp_data())
-        
-        # Cambiar el estado del botón a "confirmed" (verde)
         button_state("confirmed")
+        showNotification(paste("Hoja", hoja, "confirmada."), type = "message")
         
-        # Resetear mensaje de error
-        error_message(NULL)
-        
-        # Mostrar un mensaje de éxito
-        showNotification(
-          "Selección confirmada correctamente",
-          type = "message"
-        )
+      }, error = function(e) {
+        button_state("error")
+        showNotification("Error al procesar la selección.", type = "error")
       })
-      
-      # Observar cambios en check_ok para resetear datos confirmados
-      observeEvent(check_ok(), {
-        if (!check_ok()) {
-          confirmed_data(NULL)
-          button_state("initial")
-          error_message(NULL)
-        }
-      })
-      
-      # Devolver solo los datos confirmados
-      return(reactive({
-        if (!isTruthy(check_ok())) {
-          return(NULL)
-        }
-        # Devolver los datos confirmados, no los temporales
-        confirmed_data()
-      }))
-    }
-  )
+    })
+    
+    # Reset si cambia la fuente global (ej. de Excel a RData)
+    observeEvent(sui_data_source(), {
+      confirmed_data(NULL)
+      button_state("initial")
+    })
+    
+    # --- 4. RETORNO ---
+    return(reactive({
+      if (!check_ok()) return(NULL)
+      confirmed_data() 
+    }))
+  })
 }
