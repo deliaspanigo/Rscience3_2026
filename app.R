@@ -270,7 +270,7 @@ ui <- shiny::navbarPage(inverse=TRUE,
         "))
                         ),   
                         
-                        title = strong("RMedic 3.2.5"),
+                        title = strong("RMedic 3.2.6"),
                         windowTitle = "RMedic - Medicina y R", 
                         fluid = TRUE, 
                         # header = column(12, ""),
@@ -347,10 +347,18 @@ ui <- shiny::navbarPage(inverse=TRUE,
                           
                           div(class = "timeline-container",
                               h2("Historial de Versiones", style="color:#37474f; font-weight:800; margin-bottom:30px;"),
-                              
                               # Versión Actual
                               div(class = "timeline-item version-current",
-                                  span(class = "version-tag badge-current", "v3.2.5"),
+                                  span(class = "version-tag badge-current", "v3.2.6"),
+                                  span(class = "version-date", "2026-03-15"),
+                                  h4("Lanzamiento Actual", style="margin-top:10px; font-weight:700;"),
+                                  tags$ul(
+                                    tags$li("Modificaciones en el Lancher.")                                  )
+                              ),
+                              
+                              # Versión Actual
+                              div(class = "timeline-item",
+                                  span(class = "version-tag", "v3.2.5"),
                                   span(class = "version-date", "2026-03-15"),
                                   h4("Lanzamiento Actual", style="margin-top:10px; font-weight:700;"),
                                   tags$ul(
