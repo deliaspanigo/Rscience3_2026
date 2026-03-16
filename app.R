@@ -1,6 +1,13 @@
 # # # 
 # # #
 # # #
+
+# 1. Definimos la función que abrirá el navegador
+onStart <- function() {
+  # Agregamos 'cmd /c' al inicio para que reconozca el comando 'start'
+  system("cmd /c start msedge --app=http://127.0.0.1:1410 --start-maximized", wait = FALSE)
+}
+
 # remotes::install_github("RinteRface/fullPage")
 # library(fullPage)
 library(shiny)
@@ -526,5 +533,10 @@ server <- function(input, output, session) {
 # options(shiny.host = "0.0.0.0")
 
 # Ejecutar la aplicación Shiny
-shinyApp(ui = ui, server = server)
+shinyApp(
+  ui = ui, 
+  server = server, 
+  onStart = onStart  # <--- Esta es la clave
+)
+#shinyApp(ui = ui, server = server)
 
