@@ -360,7 +360,7 @@ ui <- shiny::navbarPage(inverse=TRUE,
                               div(class = "timeline-item",
                                   span(class = "version-tag", "v3.2.5"),
                                   span(class = "version-date", "2026-03-15"),
-                                  h4("Lanzamiento Actual", style="margin-top:10px; font-weight:700;"),
+                                  h4("Actualización de mantenimiento", style="margin-top:10px; font-weight:700;"),
                                   tags$ul(
                                     tags$li("Optimización del módulo de carga de datos.")                                  )
                               ),
@@ -368,7 +368,7 @@ ui <- shiny::navbarPage(inverse=TRUE,
                               div(class = "timeline-item",
                                   span(class = "version-tag", "v3.2.4"),
                                   span(class = "version-date", "2026-02-26"),
-                                  h4("Lanzamiento Actual", style="margin-top:10px; font-weight:700;"),
+                                  h4("Actualización de mantenimiento", style="margin-top:10px; font-weight:700;"),
                                   tags$ul(
                                     tags$li("Optimización de módulos UI/SERVER."),
                                     tags$li("Mejora en el sistema de citación bibliográfica."),
