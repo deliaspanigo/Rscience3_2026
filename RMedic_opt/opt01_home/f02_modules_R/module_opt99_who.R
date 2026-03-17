@@ -4,14 +4,13 @@
     uiOutput(ns("aver"))
   }
 
-module_opt99_who_SERVER <- function(id) {
-  moduleServer(id, function(input, output, session) {
-    
-    output$aver <- renderUI({
-      fluidRow(
-        tags$head(
-          tags$style(HTML("
-            /* Estenedor de la tarjeta */
+  module_opt99_who_SERVER <- function(id) {
+    moduleServer(id, function(input, output, session) {
+      
+      output$aver <- renderUI({
+        fluidRow(
+          tags$head(
+            tags$style(HTML("
             .health-card { 
               border: 2px solid #f0f0f0 !important; 
               border-radius: 25px !important; 
@@ -20,10 +19,10 @@ module_opt99_who_SERVER <- function(id) {
               padding: 30px;
               display: flex;
               flex-direction: column;
-              align-items: center; /* Centra todo el contenido */
+              align-items: center; 
+              height: 100%;
             }
             
-            /* Efecto Hover Pro */
             .card-arnaldo:hover { 
               transform: translateY(-10px); 
               border-color: #0d47a1 !important; 
@@ -35,7 +34,6 @@ module_opt99_who_SERVER <- function(id) {
               box-shadow: 0 15px 30px rgba(183, 28, 28, 0.1) !important;
             }
 
-            /* Lista de items centrada pero alineada */
             .expert-list {
               text-align: left;
               display: inline-block;
@@ -50,7 +48,6 @@ module_opt99_who_SERVER <- function(id) {
             }
             .expert-icon { margin-right: 15px; font-size: 1.2em; }
 
-            /* Botón de LinkedIn masivo */
             .btn-linkedin {
               display: inline-flex;
               align-items: center;
@@ -77,58 +74,74 @@ module_opt99_who_SERVER <- function(id) {
               margin: 4px;
               text-transform: uppercase;
             }
+            
+            /* Footer del mail con más peso visual */
+            .mail-footer {
+              margin-top: 20px;
+              padding-top: 15px;
+              border-top: 1px solid #f0f0f0;
+              width: 100%;
+              color: #37474f; /* Color más oscuro */
+              font-family: 'Consolas', monospace;
+              font-size: 1em; /* Un poco más grande */
+              font-weight: 800; /* Super negrita */
+            }
           "))
-        ),
-        
-        # Tarjeta 1 - Arnaldo
-        column(
-          width = 6,
-          div(
-            class = "card health-card card-arnaldo shadow-sm text-center",
-            img(src = "ARN.png", height = 160, width = 160, class = "rounded-circle border border-4 mb-3", style="border-color:#0d47a1;"),
-            
-            h2("Dr. Arnaldo Mangeaud", style = "color:#0d47a1; font-weight:800; margin-bottom:5px;"),
-            span("Senior Biostatistics Consultant", style="color:#90a4ae; font-weight:700; font-size:0.9em; letter-spacing:1px;"),
-            
-            div(class="expert-list",
-                div(class="expert-item", icon("shield-medical", class="expert-icon", style="color:#0d47a1"), "Estrategia en Investigación Clínica"),
-                div(class="expert-item", icon("chart-line", class="expert-icon", style="color:#0d47a1"), "Modelado Estadístico Avanzado"),
-                div(class="expert-item", icon("microscope", class="expert-icon", style="color:#0d47a1"), "Validación de Protocolos Médicos")
-            ),
-            
-            div(class="mb-3", span(class="badge-tech", "Clinical Trials"), span(class="badge-tech", "R Core")),
-            
-            tags$a(class="btn-linkedin", href="https://www.linkedin.com/in/arnaldo-mangeaud-565877108/", target="_blank",
-                   icon("linkedin"), "Conectar en LinkedIn")
-          )
-        ),
-        
-        # Tarjeta 2 - David
-        column(
-          width = 6,
-          div(
-            class = "card health-card card-david shadow-sm text-center",
-            img(src = "DAVID.png", height = 160, width = 160, class = "rounded-circle border border-4 mb-3", style="border-color:#b71c1c;"),
-            
-            h2("Mgter. David Elías Panigo", style = "color:#b71c1c; font-weight:800; margin-bottom:5px;"),
-            span("Data Systems & Analytics Lead", style="color:#90a4ae; font-weight:700; font-size:0.9em; letter-spacing:1px;"),
-            
-            div(class="expert-list",
-                div(class="expert-item", icon("laptop-code", class="expert-icon", style="color:#b71c1c"), "Arquitectura R / Shiny Expert"),
-                div(class="expert-item", icon("gears", class="expert-icon", style="color:#b71c1c"), "Automatización de Datos de Salud"),
-                div(class="expert-item", icon("terminal", class="expert-icon", style="color:#b71c1c"), "Desarrollo Python & Cloud")
-            ),
-            
-            div(class="mb-3", span(class="badge-tech", "Full Stack R"), span(class="badge-tech", "Health Tech")),
-            
-            tags$a(class="btn-linkedin", href="https://www.linkedin.com/in/deliaspanigo/", target="_blank",
-                   icon("linkedin"), "Conectar en LinkedIn")
+          ),
+          
+          # Tarjeta 1 - Arnaldo
+          column(
+            width = 6,
+            div(
+              class = "card health-card card-arnaldo shadow-sm text-center",
+              img(src = "ARN.png", height = 160, width = 160, class = "rounded-circle border border-4 mb-3", style="border-color:#0d47a1;"),
+              
+              h2("Dr. Arnaldo Mangeaud", style = "color:#0d47a1; font-weight:800; margin-bottom:5px;"),
+              span("Senior Biostatistics Consultant", style="color:#90a4ae; font-weight:700; font-size:0.9em; letter-spacing:1px;"),
+              
+              div(class="expert-list",
+                  div(class="expert-item", icon("stethoscope", class="expert-icon", style="color:#0d47a1"), "Estrategia en Investigación Clínica"),
+                  div(class="expert-item", icon("chart-line", class="expert-icon", style="color:#0d47a1"), "Modelado Estadístico Avanzado"),
+                  div(class="expert-item", icon("microscope", class="expert-icon", style="color:#0d47a1"), "Validación de Protocolos Médicos")
+              ),
+              
+              div(class="mb-3", span(class="badge-tech", "Clinical Trials"), span(class="badge-tech", "R Core")),
+              
+              tags$a(class="btn-linkedin", href="https://www.linkedin.com/in/arnaldo-mangeaud-565877108/", target="_blank",
+                     icon("linkedin"), "LinkedIn"),
+              
+              div(class="mail-footer", icon("envelope", style="color:#0d47a1"), " doctor.arnaldo.m@gmail.com")
+            )
+          ),
+          
+          # Tarjeta 2 - David
+          column(
+            width = 6,
+            div(
+              class = "card health-card card-david shadow-sm text-center",
+              img(src = "DAVID.png", height = 160, width = 160, class = "rounded-circle border border-4 mb-3", style="border-color:#b71c1c;"),
+              
+              h2("Mgter. David Elías Panigo", style = "color:#b71c1c; font-weight:800; margin-bottom:5px;"),
+              span("Data Systems & Analytics Lead", style="color:#90a4ae; font-weight:700; font-size:0.9em; letter-spacing:1px;"),
+              
+              div(class="expert-list",
+                  div(class="expert-item", icon("laptop-code", class="expert-icon", style="color:#b71c1c"), "Arquitectura R / Shiny Expert"),
+                  div(class="expert-item", icon("gears", class="expert-icon", style="color:#b71c1c"), "Análisis de datos automatizados."),
+                  div(class="expert-item", icon("terminal", class="expert-icon", style="color:#b71c1c"), "Desarrollo Python & Cloud")
+              ),
+              
+              div(class="mb-3", span(class="badge-tech", "Full Stack R"), span(class="badge-tech", "Health Tech")),
+              
+              tags$a(class="btn-linkedin", href="https://www.linkedin.com/in/deliaspanigo/", target="_blank",
+                     icon("linkedin"), "LinkedIn"),
+              
+              div(class="mail-footer", icon("envelope", style="color:#b71c1c"), " d.eliaspanigom@gmail.com")
+            )
           )
         )
-      )
+      })
     })
-  })
-}
+  }
 
 
 
