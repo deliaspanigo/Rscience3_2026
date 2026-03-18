@@ -96,10 +96,10 @@ module_opt04_cita_UI <- function(id) {
             p("Utilice el siguiente texto para describir el procesamiento estadístico:"),
             
             div(class = "methodology-box",
-                span("Se utilizó el software estadístico RMedic versión 3.2.5 para todas las tablas, gráficos y análisis estadísticos."),
+                span("Se utilizó el software estadístico RMedic versión 3.3.0 para todas las tablas, gráficos y análisis estadísticos."),
                 tags$button(
                   class = "copy-icon-btn btn-light-bg",
-                  onclick = "navigator.clipboard.writeText('Se utilizó el software estadístico RMedic versión 3.2.4 para todas las tablas, gráficos y análisis estadísticos.'); this.style.color='#2e7d32'; setTimeout(()=>this.style.color='#0d47a1', 1000);",
+                  onclick = "navigator.clipboard.writeText('Se utilizó el software estadístico RMedic versión 3.3.0 para todas las tablas, gráficos y análisis estadísticos.'); this.style.color='#2e7d32'; setTimeout(()=>this.style.color='#0d47a1', 1000);",
                   icon("copy")
                 )
             ),
@@ -113,13 +113,13 @@ module_opt04_cita_UI <- function(id) {
             tabsetPanel(
               type = "pills",
               tabPanel("APA 7ma", 
-                       div(class = "cite-box",
+                       div(class = "methodology-box",
                            span("Mangeaud A, Elías Panigo DH. (2018). R-Medic. Un programa de análisis estadísticos sencillo e intuitivo. Revista Methodo 3(1): 18-22."),
                            tags$button(class="copy-icon-btn btn-light-bg", onclick="navigator.clipboard.writeText('Mangeaud A, Elías Panigo DH. (2018). R-Medic. Un programa de análisis estadísticos sencillo e intuitivo. Revista Methodo 3(1): 18-22.'); this.style.color='#2e7d32'; setTimeout(()=>this.style.color='#0d47a1', 1000);", icon("copy"))
                        )
               ),
               tabPanel("Vancouver", 
-                       div(class = "cite-box",
+                       div(class = "methodology-box",
                            span("Mangeaud A, Elías Panigo DH. R-Medic. Un programa de análisis estadísticos sencillo e intuitivo. Revista Methodo. 2018; 3(1): 18-22."),
                            tags$button(class="copy-icon-btn btn-light-bg", onclick="navigator.clipboard.writeText('Mangeaud A, Elías Panigo DH. R-Medic. Un programa de análisis estadísticos sencillo e intuitivo. Revista Methodo. 2018; 3(1): 18-22.'); this.style.color='#2e7d32'; setTimeout(()=>this.style.color='#0d47a1', 1000);", icon("copy"))
                        )

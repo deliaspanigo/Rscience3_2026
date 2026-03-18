@@ -270,7 +270,7 @@ ui <- shiny::navbarPage(inverse=TRUE,
         "))
                         ),   
                         
-                        title = strong("RMedic 3.2.6"),
+                        title = strong("RMedic 3.3.0"),
                         windowTitle = "RMedic - Medicina y R", 
                         fluid = TRUE, 
                         # header = column(12, ""),
@@ -290,7 +290,8 @@ ui <- shiny::navbarPage(inverse=TRUE,
                                         ),
                                         #br(), 
                                         
-                                        div(style = "text-align: center;", HTML('&copy; RMedic (2016-2026)'))
+                                        div(style = "text-align: center;", HTML('&copy; RMedic (2016-2026)')),
+                                        div(style = "text-align: center;", HTML('Marzo 2026'))
                                         
                         ),
                         id = "nav",
@@ -347,43 +348,70 @@ ui <- shiny::navbarPage(inverse=TRUE,
                           
                           div(class = "timeline-container",
                               h2("Historial de Versiones", style="color:#37474f; font-weight:800; margin-bottom:30px;"),
+                              
                               # Versión Actual
                               div(class = "timeline-item version-current",
-                                  span(class = "version-tag badge-current", "v3.2.6"),
+                                  span(class = "version-tag badge-current", "v3.3.0"),
                                   span(class = "version-date", "2026-03-15"),
-                                  h4("Lanzamiento Actual", style="margin-top:10px; font-weight:700;"),
+                                  h4("Lanzamiento del instalador para Windows", style="margin-top:10px; font-weight:700;"),
                                   tags$ul(
-                                    tags$li("Modificaciones en el Lancher.")                                  )
-                              ),
-                              
-                              # Versión Actual
-                              div(class = "timeline-item",
-                                  span(class = "version-tag", "v3.2.5"),
-                                  span(class = "version-date", "2026-03-15"),
-                                  h4("Actualización de mantenimiento", style="margin-top:10px; font-weight:700;"),
-                                  tags$ul(
-                                    tags$li("Optimización del módulo de carga de datos.")                                  )
-                              ),
-                              
-                              div(class = "timeline-item",
-                                  span(class = "version-tag", "v3.2.4"),
-                                  span(class = "version-date", "2026-02-26"),
-                                  h4("Actualización de mantenimiento", style="margin-top:10px; font-weight:700;"),
-                                  tags$ul(
-                                    tags$li("Optimización de módulos UI/SERVER."),
-                                    tags$li("Mejora en el sistema de citación bibliográfica."),
-                                    tags$li("Compatibilidad mejorada con entornos Windows.")
+                                    tags$li("Primera versión estable distribuible para entornos Windows."),
+                                    tags$li("Nueva arquitectura de lanzamiento profesional (VBS Launcher)."),
                                   )
                               ),
                               
-                              # Versión Anterior
+                              
                               div(class = "timeline-item",
-                                  span(class = "version-tag", "v3.2.3"),
-                                  span(class = "version-date", "2025-09-31"),
-                                  h4("Actualización de mantenimiento", style="margin-top:10px; font-weight:700;"),
+                                  span(class = "version-tag", "v3.2.0"),
+                                  span(class = "version-date", "2025-11-20"),
+                                  h4("Cambios en el diseño", style="margin-top:10px; font-weight:700;"),
                                   tags$ul(
-                                    tags$li("Corrección de errores en exportación de tablas."),
-                                    tags$li("Actualización de dependencias de R base.")
+                                    tags$li("Mejoras en la experiencia del usuario.")
+                                  )
+                              ),
+                              
+                              div(class = "timeline-item",
+                                  span(class = "version-tag", "v3.1.0"),
+                                  span(class = "version-date", "2025-06-15"),
+                                  h4("Expansión de diseño", style="margin-top:10px; font-weight:700;"),
+                                  tags$ul(
+                                    tags$li("Mejoras en la experiencia del usuario.")
+                                  )
+                              ),
+                              
+                              div(class = "timeline-item",
+                                  span(class = "version-tag", "v3.0.0"),
+                                  span(class = "version-date", "2025-01-05"),
+                                  h4("Consolidación del Software", style="margin-top:10px; font-weight:700;"),
+                                  tags$ul(
+                                    tags$li("Reestructuración general."),
+                                    tags$li("Nuevos detalles de explicativos en los reportes estadísticos.")
+                                    
+                                  )
+                              ),
+                              
+                              div(class = "timeline-item",
+                                  span(class = "version-tag", "v2.0.0"),
+                                  span(class = "version-date", "2021-08-12"),
+                                  h4("Consolidación del Software", style="margin-top:10px; font-weight:700;"),
+                                  tags$ul(
+                                    tags$li("Rediseño general."),
+                                    tags$li("Nuevas herramientas estadísticas."),
+                                    tags$li("Nuevas opciones  gráficas."),
+                                    tags$li("Versión disponible solo online."),
+                                    
+                                    
+                                  )
+                              ),
+                              
+                              div(class = "timeline-item",
+                                  span(class = "version-tag", "v1.0.0"),
+                                  span(class = "version-date", "2016-04-03"),
+                                  h4("Nacimiento de RMedic", style="margin-top:10px; font-weight:700;"),
+                                  tags$ul(
+                                    tags$li("Lanzamiento de la versión original: Estadística para Medicina."),
+                                    tags$li("Versión disponible solo online."),
+                                    
                                   )
                               )
                           )
