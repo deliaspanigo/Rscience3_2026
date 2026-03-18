@@ -1,3 +1,21 @@
+# ##########################################################################
+# MÓDULO: QUIÉNES SOMOS (UI)
+# ##########################################################################
+
+module_opt99_who_UI <- function(id) {
+  ns <- NS(id)
+  
+  # Usamos uiOutput para que el SERVER renderice las tarjetas dinámicamente
+  # o puedes poner el contenido directo aquí. En tu estructura previa 
+  # usabas renderUI, así que mantenemos el estándar:
+  
+  uiOutput(ns("aver"))
+}
+
+# Nota: El contenido visual (HTML/CSS) se genera en el SERVER 
+# dentro del renderUI, tal como lo tenías configurado.
+
+
 module_opt99_who_SERVER <- function(id) {
   moduleServer(id, function(input, output, session) {
     
